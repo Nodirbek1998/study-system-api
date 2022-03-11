@@ -62,7 +62,7 @@ public class TestAnswerResource {
         TestAnswerDTO result = testAnswerService.save(testAnswerDTO);
         return ResponseEntity
             .created(new URI("/api/test-answers/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
 
@@ -96,7 +96,7 @@ public class TestAnswerResource {
         TestAnswerDTO result = testAnswerService.save(testAnswerDTO);
         return ResponseEntity
             .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, testAnswerDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, testAnswerDTO.getId().toString()))
             .body(result);
     }
 
@@ -132,7 +132,7 @@ public class TestAnswerResource {
 
         return ResponseUtil.wrapOrNotFound(
             result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, testAnswerDTO.getId().toString())
+            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, testAnswerDTO.getId().toString())
         );
     }
 
@@ -184,7 +184,7 @@ public class TestAnswerResource {
         testAnswerService.delete(id);
         return ResponseEntity
             .noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
 }

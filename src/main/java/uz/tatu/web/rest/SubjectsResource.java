@@ -62,7 +62,7 @@ public class SubjectsResource {
         SubjectsDTO result = subjectsService.save(subjectsDTO);
         return ResponseEntity
             .created(new URI("/api/subjects/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
 
@@ -96,7 +96,7 @@ public class SubjectsResource {
         SubjectsDTO result = subjectsService.save(subjectsDTO);
         return ResponseEntity
             .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, subjectsDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, subjectsDTO.getId().toString()))
             .body(result);
     }
 
@@ -132,7 +132,7 @@ public class SubjectsResource {
 
         return ResponseUtil.wrapOrNotFound(
             result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, subjectsDTO.getId().toString())
+            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, subjectsDTO.getId().toString())
         );
     }
 
@@ -175,7 +175,7 @@ public class SubjectsResource {
         subjectsService.delete(id);
         return ResponseEntity
             .noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
 }

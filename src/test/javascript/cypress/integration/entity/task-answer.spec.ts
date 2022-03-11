@@ -153,7 +153,7 @@ describe('TaskAnswer e2e test', () => {
     it('should create an instance of TaskAnswer', () => {
       cy.get(`[data-cy="createdAt"]`).type('2022-03-10').should('have.value', '2022-03-10');
 
-      cy.get(`[data-cy="updatedAt"]`).type('2022-03-10').should('have.value', '2022-03-10');
+      cy.get(`[data-cy="updatedAt"]`).type('2022-03-11').should('have.value', '2022-03-11');
 
       cy.get(entityCreateSaveButtonSelector).click();
 

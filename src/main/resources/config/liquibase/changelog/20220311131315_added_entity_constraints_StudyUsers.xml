@@ -4,14 +4,14 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
     <!--
-        Added the constraints for entity Tests.
+        Added the constraints for entity StudyUsers.
     -->
-    <changeSet id="20220311071200-2" author="jhipster">
+    <changeSet id="20220311131315-2" author="jhipster">
 
-        <addForeignKeyConstraint baseColumnNames="subject_id"
-                                 baseTableName="tests"
-                                 constraintName="fk_tests__subject_id"
+        <addForeignKeyConstraint baseColumnNames="role_id"
+                                 baseTableName="study_users"
+                                 constraintName="fk_study_users__role_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="subjects"/>
+                                 referencedTableName="role"/>
     </changeSet>
 </databaseChangeLog>

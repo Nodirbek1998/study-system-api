@@ -121,7 +121,7 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
         return create(
             problem,
             request,
-            HeaderUtil.createFailureAlert(applicationName, false, problem.getEntityName(), problem.getErrorKey(), problem.getMessage())
+            HeaderUtil.createFailureAlert(applicationName, true, problem.getEntityName(), problem.getErrorKey(), problem.getMessage())
         );
     }
 
@@ -134,7 +134,7 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
         return create(
             problem,
             request,
-            HeaderUtil.createFailureAlert(applicationName, false, problem.getEntityName(), problem.getErrorKey(), problem.getMessage())
+            HeaderUtil.createFailureAlert(applicationName, true, problem.getEntityName(), problem.getErrorKey(), problem.getMessage())
         );
     }
 
@@ -148,7 +148,7 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
         return create(
             ex,
             request,
-            HeaderUtil.createFailureAlert(applicationName, false, ex.getEntityName(), ex.getErrorKey(), ex.getMessage())
+            HeaderUtil.createFailureAlert(applicationName, true, ex.getEntityName(), ex.getErrorKey(), ex.getMessage())
         );
     }
 

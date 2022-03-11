@@ -6,7 +6,7 @@
     <!--
         Added the constraints for entity Groups.
     -->
-    <changeSet id="20220311071159-2" author="jhipster">
+    <changeSet id="20220311131324-2" author="jhipster">
 
         <addForeignKeyConstraint baseColumnNames="groups_id"
                                  baseTableName="rel_groups__study_user"

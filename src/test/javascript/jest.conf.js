@@ -30,6 +30,7 @@ module.exports = {
   testMatch: ['<rootDir>/src/test/javascript/spec/**/@(*.)@(spec.ts)'],
   snapshotSerializers: ['<rootDir>/node_modules/jest-serializer-vue'],
   globals: {
+    I18N_HASH: 'generated_hash',
     SERVER_API_URL: config.serverApiUrl,
     VERSION: config.version,
     'ts-jest': {

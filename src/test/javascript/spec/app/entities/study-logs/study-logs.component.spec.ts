@@ -13,6 +13,7 @@ const localVue = createLocalVue();
 localVue.use(ToastPlugin);
 
 config.initVueApp(localVue);
+const i18n = config.initI18N(localVue);
 const store = config.initVueXStore(localVue);
 localVue.component('font-awesome-icon', {});
 localVue.component('b-badge', {});
@@ -41,6 +42,7 @@ describe('Component Tests', () => {
 
       wrapper = shallowMount<StudyLogsClass>(StudyLogsComponent, {
         store,
+        i18n,
         localVue,
         stubs: { jhiItemCount: true, bPagination: true, bModal: bModalStub as any },
         provide: {

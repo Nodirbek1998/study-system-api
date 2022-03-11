@@ -155,7 +155,7 @@ describe('Tests e2e test', () => {
 
       cy.get(`[data-cy="status"]`).select('Oraliq');
 
-      cy.get(`[data-cy="deadline"]`).type('2022-03-10').should('have.value', '2022-03-10');
+      cy.get(`[data-cy="deadline"]`).type('2022-03-11').should('have.value', '2022-03-11');
 
       cy.get(entityCreateSaveButtonSelector).click();
 

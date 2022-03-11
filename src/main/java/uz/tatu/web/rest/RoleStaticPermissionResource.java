@@ -66,7 +66,7 @@ public class RoleStaticPermissionResource {
         RoleStaticPermissionDTO result = roleStaticPermissionService.save(roleStaticPermissionDTO);
         return ResponseEntity
             .created(new URI("/api/role-static-permissions/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
 
@@ -100,7 +100,7 @@ public class RoleStaticPermissionResource {
         RoleStaticPermissionDTO result = roleStaticPermissionService.save(roleStaticPermissionDTO);
         return ResponseEntity
             .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, roleStaticPermissionDTO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, roleStaticPermissionDTO.getId().toString()))
             .body(result);
     }
 
@@ -136,7 +136,7 @@ public class RoleStaticPermissionResource {
 
         return ResponseUtil.wrapOrNotFound(
             result,
-            HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, roleStaticPermissionDTO.getId().toString())
+            HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, roleStaticPermissionDTO.getId().toString())
         );
     }
 
@@ -181,7 +181,7 @@ public class RoleStaticPermissionResource {
         roleStaticPermissionService.delete(id);
         return ResponseEntity
             .noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
+            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
 }

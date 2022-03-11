@@ -14,6 +14,7 @@ const localVue = createLocalVue();
 localVue.use(VueRouter);
 
 config.initVueApp(localVue);
+const i18n = config.initI18N(localVue);
 const store = config.initVueXStore(localVue);
 localVue.component('font-awesome-icon', {});
 localVue.component('router-link', {});
@@ -29,6 +30,7 @@ describe('Component Tests', () => {
 
       wrapper = shallowMount<GroupsClass>(GroupsDetailComponent, {
         store,
+        i18n,
         localVue,
         router,
         provide: { groupsService: () => groupsServiceStub, alertService: () => new AlertService() },

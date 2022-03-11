@@ -39,7 +39,7 @@ public class Article implements Serializable {
 
     @ManyToOne
     @JsonIgnoreProperties(value = { "role", "groups", "testAnswers", "taskAnswers" }, allowSetters = true)
-    private StudyUsers studyUsers;
+    private StudyUsers studyUser;
 
     @ManyToOne
     @JsonIgnoreProperties(value = { "role", "groups", "testAnswers", "taskAnswers" }, allowSetters = true)
@@ -117,11 +117,11 @@ public class Article implements Serializable {
     }
 
     public StudyUsers getStudyUser() {
-        return this.studyUsers;
+        return this.studyUser;
     }
 
     public void setStudyUser(StudyUsers studyUsers) {
-        this.studyUsers = studyUsers;
+        this.studyUser = studyUsers;
     }
 
     public Article studyUser(StudyUsers studyUsers) {

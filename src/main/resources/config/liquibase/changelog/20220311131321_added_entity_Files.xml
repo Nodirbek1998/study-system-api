@@ -7,35 +7,30 @@
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <!--
-        Added the entity TaskAnswer.
+        Added the entity Files.
     -->
-    <changeSet id="20220311071204-1" author="jhipster">
-        <createTable tableName="task_answer">
+    <changeSet id="20220311131321-1" author="jhipster">
+        <createTable tableName="files">
             <column name="id" type="bigint">
                 <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="name" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            <column name="file_size" type="double">
+                <constraints nullable="true" />
+            </column>
+            <column name="content_type" type="varchar(255)">
+                <constraints nullable="true" />
             </column>
             <column name="created_at" type="date">
                 <constraints nullable="true" />
             </column>
-            <column name="updated_at" type="date">
+            <column name="created_by_id" type="bigint">
                 <constraints nullable="true" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
-    </changeSet>
-
-    <changeSet id="20220311071204-1-relations" author="jhipster">
-
-        <createTable tableName="rel_task_answer__study_user">
-            <column name="study_user_id" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-            <column name="task_answer_id" type="bigint">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-
-        <addPrimaryKey columnNames="task_answer_id, study_user_id" tableName="rel_task_answer__study_user"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->
@@ -48,15 +43,17 @@
           This can be customized by adding or removing 'faker' in the 'spring.liquibase.contexts'
           Spring Boot configuration key.
     -->
-    <changeSet id="20220311071204-1-data" author="jhipster" context="faker">
+    <changeSet id="20220311131321-1-data" author="jhipster" context="faker">
         <loadData
-                  file="config/liquibase/fake-data/task_answer.csv"
+                  file="config/liquibase/fake-data/files.csv"
                   separator=";"
-                  tableName="task_answer"
+                  tableName="files"
                   usePreparedStatements="true">
             <column name="id" type="numeric"/>
+            <column name="name" type="string"/>
+            <column name="file_size" type="numeric"/>
+            <column name="content_type" type="string"/>
             <column name="created_at" type="date"/>
-            <column name="updated_at" type="date"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>
