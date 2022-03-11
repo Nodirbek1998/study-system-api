@@ -1,0 +1,152 @@
+
+entity StudyUsers {
+	fullName String,
+    age Integer,
+    phone String,
+    email String,
+    username String,
+    password String,
+    createdAt LocalDate,
+    updatedAt LocalDate
+}
+entity Role {
+	nameUz String,
+    nameRu String,
+    nameEn String
+}
+
+entity StudyLogs {
+	operationName String,
+    clientIp String,
+    host String,
+    createdAt LocalDate,
+    actionType EnumActionType
+}
+
+entity RoleStaticPermission {
+	staticPermission EnumStaticPermission
+}
+
+entity Article {
+	name String,
+    text String maxlength(1000),
+    createdAt LocalDate,
+    updatedAt LocalDate,
+}
+
+entity Images {
+	name String,
+    imageSize Double,
+    contentType String,
+    createdAt LocalDate
+}
+
+entity Files {
+	name String,
+    fileSize Double,
+    contentType String,
+    createdAt LocalDate
+}
+
+entity Subjects {
+	nameUz String,
+    nameRu String, 
+    nameEn String,
+    createdAt LocalDate,
+    updatedAt LocalDate
+}
+
+entity Units {
+	nameUz String, 
+    nameRu String,
+    nameEn String,
+    createdAt LocalDate,
+    updatedAt LocalDate
+}
+
+entity Groups {
+	name String,
+    createdAt LocalDate,
+    updatedAt LocalDate
+}
+
+entity Tests {
+	name String,
+    status EnumTest,
+    deadline LocalDate
+}
+
+entity TestQuestion {
+	name String,
+    level Integer,
+    answerA Boolean,
+    answerB Boolean,
+    answerC Boolean,
+    answerD Boolean
+}
+
+entity TestAnswer {
+	createdAt LocalDate,
+    updatedAt LocalDate,
+    right Boolean
+}
+
+entity Task {
+	topic String,
+    createdAt LocalDate,
+    updatedAt LocalDate,
+    deadline LocalDate
+}
+
+entity TaskAnswer {
+	createdAt LocalDate,
+    updatedAt LocalDate
+}
+
+
+
+enum EnumStaticPermission {
+    Add, Delete, Update, View
+}
+
+enum EnumActionType {
+	Login, Logout
+}
+
+enum EnumTest {
+	Yakuniy, Unit, Oraliq
+}
+
+
+
+
+relationship ManyToOne {
+	RoleStaticPermission{role} to Role,
+    StudyUsers{role} to Role,
+    StudyLogs{studyUser} to StudyUsers,
+    Article{studyUser} to StudyUsers,
+    Article{createdBy} to StudyUsers,
+    Article{updatedBy} to StudyUsers,
+    Files{createdBy} to StudyUsers,
+    Units{subject} to Subjects,
+    Images{studyUser} to StudyUsers,
+    Tests{subject} to Subjects,
+    TestQuestion{test} to Tests,
+    
+    
+    
+}
+
+relationship ManyToMany {
+	Groups{studyUser} to StudyUsers{group},
+	Groups{subjects} to Subjects{group},
+    TestAnswer{studyUser} to StudyUsers{testAnswer},
+    TaskAnswer{studyUser} to StudyUsers{taskAnswer}
+}
+
+paginate all with pagination
+
+dto * with mapstruct
+
+service all with serviceImpl
+

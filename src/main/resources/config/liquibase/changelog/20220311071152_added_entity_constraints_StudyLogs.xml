@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
+    <!--
+        Added the constraints for entity StudyLogs.
+    -->
+    <changeSet id="20220311071152-2" author="jhipster">
+
+        <addForeignKeyConstraint baseColumnNames="study_user_id"
+                                 baseTableName="study_logs"
+                                 constraintName="fk_study_logs__study_user_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="study_users"/>
+    </changeSet>
+</databaseChangeLog>
