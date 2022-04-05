@@ -48,10 +48,10 @@ public class CacheConfiguration {
             createCache(cm, uz.tatu.domain.User.class.getName());
             createCache(cm, uz.tatu.domain.Authority.class.getName());
             createCache(cm, uz.tatu.domain.User.class.getName() + ".authorities");
-            createCache(cm, uz.tatu.domain.StudyUsers.class.getName());
-            createCache(cm, uz.tatu.domain.StudyUsers.class.getName() + ".groups");
-            createCache(cm, uz.tatu.domain.StudyUsers.class.getName() + ".testAnswers");
-            createCache(cm, uz.tatu.domain.StudyUsers.class.getName() + ".taskAnswers");
+            createCache(cm, uz.tatu.domain.User.class.getName());
+            createCache(cm, uz.tatu.domain.User.class.getName() + ".groups");
+            createCache(cm, uz.tatu.domain.User.class.getName() + ".testAnswers");
+            createCache(cm, uz.tatu.domain.User.class.getName() + ".taskAnswers");
             createCache(cm, uz.tatu.domain.Role.class.getName());
             createCache(cm, uz.tatu.domain.StudyLogs.class.getName());
             createCache(cm, uz.tatu.domain.RoleStaticPermission.class.getName());
