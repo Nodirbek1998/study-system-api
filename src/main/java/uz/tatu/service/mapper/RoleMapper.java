@@ -9,8 +9,14 @@ import uz.tatu.service.dto.RoleDTO;
  */
 @Mapper(componentModel = "spring", uses = {})
 public interface RoleMapper extends EntityMapper<RoleDTO, Role> {
-    @Named("id")
-    @BeanMapping(ignoreByDefault = true)
-    @Mapping(target = "id", source = "id")
-    RoleDTO toDtoId(Role role);
+
+
+    default Role fromId(Long id) {
+        if (id == null) {
+            return null;
+        }
+        Role edoDtRoles = new Role();
+        edoDtRoles.setId(id);
+        return edoDtRoles;
+    }
 }

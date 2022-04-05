@@ -13,11 +13,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
+import uz.tatu.domain.enumeration.EnumStaticPermission;
 import uz.tatu.repository.RoleStaticPermissionRepository;
 import uz.tatu.service.RoleStaticPermissionService;
 import uz.tatu.service.dto.RoleStaticPermissionDTO;
@@ -63,7 +65,12 @@ public class RoleStaticPermissionResource {
         if (roleStaticPermissionDTO.getId() != null) {
             throw new BadRequestAlertException("A new roleStaticPermission cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        RoleStaticPermissionDTO result = roleStaticPermissionService.save(roleStaticPermissionDTO);
+        RoleStaticPermissionDTO result;
+        if(roleStaticPermissionDTO.getStaticPermissions() != null){
+            result = roleStaticPermissionService.saveAll(roleStaticPermissionDTO);
+        } else {
+            result = roleStaticPermissionService.save(roleStaticPermissionDTO);
+        }
         return ResponseEntity
             .created(new URI("/api/role-static-permissions/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
@@ -147,11 +154,9 @@ public class RoleStaticPermissionResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of roleStaticPermissions in body.
      */
     @GetMapping("/role-static-permissions")
-    public ResponseEntity<List<RoleStaticPermissionDTO>> getAllRoleStaticPermissions(
-        @org.springdoc.api.annotations.ParameterObject Pageable pageable
-    ) {
+    public ResponseEntity<List<RoleStaticPermissionDTO>> getAllRoleStaticPermissions(@RequestParam MultiValueMap<String, String> queryParams, Pageable pageable) {
         log.debug("REST request to get a page of RoleStaticPermissions");
-        Page<RoleStaticPermissionDTO> page = roleStaticPermissionService.findAll(pageable);
+        Page<RoleStaticPermissionDTO> page = roleStaticPermissionService.findAll(queryParams, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -183,5 +188,22 @@ public class RoleStaticPermissionResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    @DeleteMapping("/role-static-permissions")
+    public ResponseEntity<Void> deleteEdoDtRoleStaticPermissionByRoleAndPermission(@RequestBody RoleStaticPermissionDTO roleStaticPermissionDTO) {
+        log.debug("REST request to delete RoleStaticPermission : {}", roleStaticPermissionDTO);
+//        if(!userService.getAccessMethodForProduction(EnumStaticPermission.RoleStaticPermissionDelete)){
+//            return ResponseEntity
+//                    .status(HttpStatus.FORBIDDEN)
+//                    .build();
+//        }
+        roleStaticPermissionService.deleteByDTO(roleStaticPermissionDTO);
+        return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, roleStaticPermissionDTO.toString())).build();
+    }
+
+    @GetMapping("static-permissions")
+    public ResponseEntity staticPermissionList() {
+        return ResponseEntity.ok(roleStaticPermissionService.staticPermissionList());
     }
 }

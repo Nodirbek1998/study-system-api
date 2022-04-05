@@ -9,6 +9,19 @@ import uz.tatu.service.dto.RoleStaticPermissionDTO;
  */
 @Mapper(componentModel = "spring", uses = { RoleMapper.class })
 public interface RoleStaticPermissionMapper extends EntityMapper<RoleStaticPermissionDTO, RoleStaticPermission> {
-    @Mapping(target = "role", source = "role", qualifiedByName = "id")
+
+    @Mapping(source = "roles.id", target = "roleId")
     RoleStaticPermissionDTO toDto(RoleStaticPermission s);
+
+    @Mapping(source = "roleId", target = "roles")
+    RoleStaticPermission toEntity(RoleStaticPermissionDTO edoDtRoleStaticPermissionDTO);
+
+    default RoleStaticPermission fromId(Long id) {
+        if (id == null) {
+            return null;
+        }
+        RoleStaticPermission edoDtRoleStaticPermission = new RoleStaticPermission();
+        edoDtRoleStaticPermission.setId(id);
+        return edoDtRoleStaticPermission;
+    }
 }

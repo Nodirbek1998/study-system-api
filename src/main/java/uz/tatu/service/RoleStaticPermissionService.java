@@ -3,6 +3,7 @@ package uz.tatu.service;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.util.MultiValueMap;
 import uz.tatu.service.dto.RoleStaticPermissionDTO;
 
 /**
@@ -31,7 +32,7 @@ public interface RoleStaticPermissionService {
      * @param pageable the pagination information.
      * @return the list of entities.
      */
-    Page<RoleStaticPermissionDTO> findAll(Pageable pageable);
+    Page<RoleStaticPermissionDTO> findAll(MultiValueMap<String, String> queryParams, Pageable pageable);
 
     /**
      * Get the "id" roleStaticPermission.
@@ -47,4 +48,10 @@ public interface RoleStaticPermissionService {
      * @param id the id of the entity.
      */
     void delete(Long id);
+
+    Object staticPermissionList();
+
+    void deleteByDTO(RoleStaticPermissionDTO roleStaticPermissionDTO);
+
+    RoleStaticPermissionDTO saveAll(RoleStaticPermissionDTO roleStaticPermissionDTO);
 }

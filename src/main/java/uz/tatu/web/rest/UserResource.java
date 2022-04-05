@@ -27,7 +27,8 @@ import uz.tatu.repository.UserRepository;
 import uz.tatu.security.AuthoritiesConstants;
 import uz.tatu.service.MailService;
 import uz.tatu.service.UserService;
-import uz.tatu.service.dto.AdminUserDTO;
+import uz.tatu.service.dto.UserDTO;
+import uz.tatu.service.mapper.UserMapper;
 import uz.tatu.web.rest.errors.BadRequestAlertException;
 import uz.tatu.web.rest.errors.EmailAlreadyUsedException;
 import uz.tatu.web.rest.errors.LoginAlreadyUsedException;
@@ -87,10 +88,13 @@ public class UserResource {
 
     private final MailService mailService;
 
-    public UserResource(UserService userService, UserRepository userRepository, MailService mailService) {
+    private final UserMapper userMapper;
+
+    public UserResource(UserService userService, UserRepository userRepository, MailService mailService, UserMapper userMapper) {
         this.userService = userService;
         this.userRepository = userRepository;
         this.mailService = mailService;
+        this.userMapper = userMapper;
     }
 
     /**
@@ -106,8 +110,8 @@ public class UserResource {
      * @throws BadRequestAlertException {@code 400 (Bad Request)} if the login or email is already in use.
      */
     @PostMapping("/users")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<User> createUser(@Valid @RequestBody AdminUserDTO userDTO) throws URISyntaxException {
+//    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public ResponseEntity<User> createUser(@Valid @RequestBody UserDTO userDTO) throws URISyntaxException {
         log.debug("REST request to save User : {}", userDTO);
 
         if (userDTO.getId() != null) {
@@ -136,9 +140,12 @@ public class UserResource {
      * @throws LoginAlreadyUsedException {@code 400 (Bad Request)} if the login is already in use.
      */
     @PutMapping("/users")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<AdminUserDTO> updateUser(@Valid @RequestBody AdminUserDTO userDTO) {
+//    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public ResponseEntity<UserDTO> updateUser(@Valid @RequestBody UserDTO userDTO) {
         log.debug("REST request to update User : {}", userDTO);
+        if (userDTO.getId() == null){
+            throw new BadRequestAlertException("Id not be null", "Study User", "400");
+        }
         Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
         if (existingUser.isPresent() && (!existingUser.get().getId().equals(userDTO.getId()))) {
             throw new EmailAlreadyUsedException();
@@ -147,7 +154,7 @@ public class UserResource {
         if (existingUser.isPresent() && (!existingUser.get().getId().equals(userDTO.getId()))) {
             throw new LoginAlreadyUsedException();
         }
-        Optional<AdminUserDTO> updatedUser = userService.updateUser(userDTO);
+        Optional<UserDTO> updatedUser = userService.updateUser(userDTO);
 
         return ResponseUtil.wrapOrNotFound(
             updatedUser,
@@ -162,14 +169,14 @@ public class UserResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body all users.
      */
     @GetMapping("/users")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<List<AdminUserDTO>> getAllUsers(@org.springdoc.api.annotations.ParameterObject Pageable pageable) {
+//    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public ResponseEntity<List<UserDTO>> getAllUsers( Pageable pageable) {
         log.debug("REST request to get all User for an admin");
         if (!onlyContainsAllowedProperties(pageable)) {
             return ResponseEntity.badRequest().build();
         }
 
-        final Page<AdminUserDTO> page = userService.getAllManagedUsers(pageable);
+        final Page<UserDTO> page = userService.getAllManagedUsers(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
     }
@@ -181,14 +188,14 @@ public class UserResource {
     /**
      * {@code GET /admin/users/:login} : get the "login" user.
      *
-     * @param login the login of the user to find.
+     * @param id the login of the user to find.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the "login" user, or with status {@code 404 (Not Found)}.
      */
-    @GetMapping("/users/{login}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<AdminUserDTO> getUser(@PathVariable @Pattern(regexp = Constants.LOGIN_REGEX) String login) {
-        log.debug("REST request to get User : {}", login);
-        return ResponseUtil.wrapOrNotFound(userService.getUserWithAuthoritiesByLogin(login).map(AdminUserDTO::new));
+    @GetMapping("/users/{id}")
+//    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public ResponseEntity<UserDTO> getUser(@PathVariable Long id) {
+        log.debug("REST request to get User : {}", id);
+        return ResponseUtil.wrapOrNotFound(userService.getOne(id).map(userMapper::toDto));
     }
 
     /**
@@ -198,7 +205,7 @@ public class UserResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/users/{login}")
-    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
+//    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<Void> deleteUser(@PathVariable @Pattern(regexp = Constants.LOGIN_REGEX) String login) {
         log.debug("REST request to delete User: {}", login);
         userService.deleteUser(login);

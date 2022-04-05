@@ -1,28 +1,23 @@
 package uz.tatu.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import javax.persistence.*;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import uz.tatu.domain.enumeration.EnumTest;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
-/**
- * A Tests.
- */
+import javax.persistence.*;
+
 @Data
 @EqualsAndHashCode
 @ToString
 @Entity
-@Table(name = "tests")
+@Table(name = "subject_group")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class Tests implements Serializable {
+public class SubjectGroup {
 
     private static final long serialVersionUID = 1L;
 
@@ -32,20 +27,15 @@ public class Tests implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "name")
-    private String name;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status")
-    private EnumTest status;
-
-    @Column(name = "deadline")
-    private LocalDateTime deadline;
-
-    @ManyToOne
-    @JsonIgnoreProperties(value = { "groups" }, allowSetters = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = "subject", allowSetters = true)
+    @NotFound(action = NotFoundAction.IGNORE)
     private Subjects subject;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = "group", allowSetters = true)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private Groups group;
+
 
 }

@@ -7,6 +7,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 import uz.tatu.domain.User;
 
@@ -14,7 +15,7 @@ import uz.tatu.domain.User;
  * Spring Data JPA repository for the {@link User} entity.
  */
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
     String USERS_BY_LOGIN_CACHE = "usersByLogin";
 
     String USERS_BY_EMAIL_CACHE = "usersByEmail";
@@ -24,7 +25,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findOneByEmailIgnoreCase(String email);
     Optional<User> findOneByLogin(String login);
 
-    @EntityGraph(attributePaths = "authorities")
+//    @EntityGraph(attributePaths = "authorities")
     @Cacheable(cacheNames = USERS_BY_LOGIN_CACHE)
     Optional<User> findOneWithAuthoritiesByLogin(String login);
 

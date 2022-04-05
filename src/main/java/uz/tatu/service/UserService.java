@@ -16,13 +16,16 @@ import org.springframework.transaction.annotation.Transactional;
 import tech.jhipster.security.RandomUtil;
 import uz.tatu.config.Constants;
 import uz.tatu.domain.Authority;
+import uz.tatu.domain.Role;
 import uz.tatu.domain.User;
+import uz.tatu.domain.UserRole;
 import uz.tatu.repository.AuthorityRepository;
+import uz.tatu.repository.RoleRepository;
 import uz.tatu.repository.UserRepository;
-import uz.tatu.security.AuthoritiesConstants;
+import uz.tatu.repository.UserRoleRepository;
 import uz.tatu.security.SecurityUtils;
-import uz.tatu.service.dto.AdminUserDTO;
 import uz.tatu.service.dto.UserDTO;
+import uz.tatu.service.mapper.UserMapper;
 
 /**
  * Service class for managing users.
@@ -37,18 +40,27 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final UserRoleRepository userRoleRepository;
+
+    private final RoleRepository roleRepository;
+
+    private final UserMapper userMapper;
+
     private final AuthorityRepository authorityRepository;
 
     private final CacheManager cacheManager;
 
     public UserService(
-        UserRepository userRepository,
-        PasswordEncoder passwordEncoder,
-        AuthorityRepository authorityRepository,
-        CacheManager cacheManager
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            UserRoleRepository userRoleRepository, RoleRepository roleRepository, UserMapper userMapper, AuthorityRepository authorityRepository,
+            CacheManager cacheManager
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userRoleRepository = userRoleRepository;
+        this.roleRepository = roleRepository;
+        this.userMapper = userMapper;
         this.authorityRepository = authorityRepository;
         this.cacheManager = cacheManager;
     }
@@ -93,7 +105,7 @@ public class UserService {
             });
     }
 
-    public User registerUser(AdminUserDTO userDTO, String password) {
+    public User registerUser(UserDTO userDTO, String password) {
         userRepository
             .findOneByLogin(userDTO.getLogin().toLowerCase())
             .ifPresent(existingUser -> {
@@ -126,9 +138,6 @@ public class UserService {
         newUser.setActivated(false);
         // new user gets registration key
         newUser.setActivationKey(RandomUtil.generateActivationKey());
-        Set<Authority> authorities = new HashSet<>();
-        authorityRepository.findById(AuthoritiesConstants.USER).ifPresent(authorities::add);
-        newUser.setAuthorities(authorities);
         userRepository.save(newUser);
         this.clearUserCaches(newUser);
         log.debug("Created Information for User: {}", newUser);
@@ -145,11 +154,13 @@ public class UserService {
         return true;
     }
 
-    public User createUser(AdminUserDTO userDTO) {
+    public User createUser(UserDTO userDTO) {
         User user = new User();
         user.setLogin(userDTO.getLogin().toLowerCase());
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
+        user.setAge(userDTO.getAge());
+        user.setPhone(userDTO.getPhone());
         if (userDTO.getEmail() != null) {
             user.setEmail(userDTO.getEmail().toLowerCase());
         }
@@ -159,23 +170,25 @@ public class UserService {
         } else {
             user.setLangKey(userDTO.getLangKey());
         }
-        String encryptedPassword = passwordEncoder.encode(RandomUtil.generatePassword());
+        String encryptedPassword = passwordEncoder.encode("1234");
         user.setPassword(encryptedPassword);
         user.setResetKey(RandomUtil.generateResetKey());
         user.setResetDate(Instant.now());
         user.setActivated(true);
-        if (userDTO.getAuthorities() != null) {
-            Set<Authority> authorities = userDTO
-                .getAuthorities()
-                .stream()
-                .map(authorityRepository::findById)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toSet());
-            user.setAuthorities(authorities);
-        }
         userRepository.save(user);
         this.clearUserCaches(user);
+
+        if (userDTO.getAuthorities() != null && userDTO.getAuthorities() > 0L) {
+            Optional<Role> roles = roleRepository.findById(userDTO.getAuthorities());
+            roles.ifPresent(role->{
+                UserRole userRole = new UserRole();
+                userRole.setRole(role);
+                userRole.setUser(user);
+                userRoleRepository.save(userRole);
+                user.setAuthorities(role.getId());
+            });
+        }
+
         log.debug("Created Information for User: {}", user);
         return user;
     }
@@ -186,36 +199,41 @@ public class UserService {
      * @param userDTO user to update.
      * @return updated user.
      */
-    public Optional<AdminUserDTO> updateUser(AdminUserDTO userDTO) {
-        return Optional
-            .of(userRepository.findById(userDTO.getId()))
-            .filter(Optional::isPresent)
-            .map(Optional::get)
-            .map(user -> {
-                this.clearUserCaches(user);
-                user.setLogin(userDTO.getLogin().toLowerCase());
-                user.setFirstName(userDTO.getFirstName());
-                user.setLastName(userDTO.getLastName());
-                if (userDTO.getEmail() != null) {
-                    user.setEmail(userDTO.getEmail().toLowerCase());
-                }
-                user.setImageUrl(userDTO.getImageUrl());
-                user.setActivated(userDTO.isActivated());
-                user.setLangKey(userDTO.getLangKey());
-                Set<Authority> managedAuthorities = user.getAuthorities();
-                managedAuthorities.clear();
-                userDTO
-                    .getAuthorities()
-                    .stream()
-                    .map(authorityRepository::findById)
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .forEach(managedAuthorities::add);
-                this.clearUserCaches(user);
-                log.debug("Changed Information for User: {}", user);
-                return user;
-            })
-            .map(AdminUserDTO::new);
+    public Optional<UserDTO> updateUser(UserDTO userDTO) {
+        Optional<UserDTO> adminUserDTO = Optional
+                .of(userRepository.findById(userDTO.getId()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(user -> {
+                    this.clearUserCaches(user);
+                    user.setLogin(userDTO.getLogin().toLowerCase());
+                    user.setFirstName(userDTO.getFirstName());
+                    user.setLastName(userDTO.getLastName());
+                    user.setAge(userDTO.getAge());
+                    user.setPhone(userDTO.getPhone());
+                    if (userDTO.getEmail() != null) {
+                        user.setEmail(userDTO.getEmail().toLowerCase());
+                    }
+                    user.setImageUrl(userDTO.getImageUrl());
+                    user.setActivated(userDTO.isActivated());
+                    user.setLangKey(userDTO.getLangKey());
+                    if (userDTO.getAuthorities() != null && userDTO.getAuthorities() > 0L) {
+                        userRoleRepository.deleteAllByUser_Id(user.getId());
+                        Optional<Role> edoDtRoles = roleRepository.findById(userDTO.getAuthorities());
+                        edoDtRoles.ifPresent(role -> {
+                            UserRole userRole = new UserRole();
+                            userRole.setRole(role);
+                            userRole.setUser(user);
+                            userRoleRepository.save(userRole);
+                            user.setAuthorities(role.getId());
+                        });
+                    }
+                    this.clearUserCaches(user);
+                    log.debug("Changed Information for User: {}", user);
+                    return user;
+                })
+                .map(userMapper::toDto);
+        return adminUserDTO;
     }
 
     public void deleteUser(String login) {
@@ -272,23 +290,32 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Page<AdminUserDTO> getAllManagedUsers(Pageable pageable) {
-        return userRepository.findAll(pageable).map(AdminUserDTO::new);
+    public Page<UserDTO> getAllManagedUsers(Pageable pageable) {
+        return userRepository.findAll(pageable).map(userMapper::toDto);
     }
 
     @Transactional(readOnly = true)
     public Page<UserDTO> getAllPublicUsers(Pageable pageable) {
-        return userRepository.findAllByIdNotNullAndActivatedIsTrue(pageable).map(UserDTO::new);
+        return userRepository.findAllByIdNotNullAndActivatedIsTrue(pageable).map(userMapper::toDto);
     }
 
     @Transactional(readOnly = true)
-    public Optional<User> getUserWithAuthoritiesByLogin(String login) {
-        return userRepository.findOneWithAuthoritiesByLogin(login);
+    public Optional<User> getOne(Long id) {
+        return userRepository.findById(id);
     }
 
     @Transactional(readOnly = true)
     public Optional<User> getUserWithAuthorities() {
-        return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneWithAuthoritiesByLogin);
+//        return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneWithAuthoritiesByLogin);
+        return SecurityUtils.getCurrentUserLogin().flatMap(s -> {
+            Optional<User> users = userRepository.findOneWithAuthoritiesByLogin(s);
+            users.ifPresent(edoUsers -> {
+                userRoleRepository.findFirstByUser_Id(edoUsers.getId()).ifPresent(row->{
+                    edoUsers.setAuthorities(row.getRole().getId());
+                });
+            });
+            return users;
+        });
     }
 
     /**

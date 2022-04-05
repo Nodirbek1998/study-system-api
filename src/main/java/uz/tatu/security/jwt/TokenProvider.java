@@ -63,7 +63,9 @@ public class TokenProvider {
     }
 
     public String createToken(Authentication authentication, boolean rememberMe) {
-        String authorities = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.joining(","));
+        String authorities = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
 
         long now = (new Date()).getTime();
         Date validity;
@@ -73,23 +75,32 @@ public class TokenProvider {
             validity = new Date(now + this.tokenValidityInMilliseconds);
         }
 
-        return Jwts
-            .builder()
-            .setSubject(authentication.getName())
-            .claim(AUTHORITIES_KEY, authorities)
-            .signWith(key, SignatureAlgorithm.HS512)
-            .setExpiration(validity)
-            .compact();
+        return Jwts.builder()
+                .setSubject(authentication.getName())
+                .claim(AUTHORITIES_KEY, authorities)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .setExpiration(validity)
+                .compact();
     }
 
     public Authentication getAuthentication(String token) {
-        Claims claims = jwtParser.parseClaimsJws(token).getBody();
+        long now = (new Date()).getTime();
 
-        Collection<? extends GrantedAuthority> authorities = Arrays
-            .stream(claims.get(AUTHORITIES_KEY).toString().split(","))
-            .filter(auth -> !auth.trim().isEmpty())
-            .map(SimpleGrantedAuthority::new)
-            .collect(Collectors.toList());
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .setExpiration(new Date(now + this.tokenValidityInMilliseconds));
+        Collection<? extends GrantedAuthority> authorities;
+        if (claims.isEmpty() || claims.get(AUTHORITIES_KEY) == null || claims.get(AUTHORITIES_KEY).toString().isEmpty()){
+            authorities = Arrays.asList(new SimpleGrantedAuthority("1"));
+        }else {
+            authorities =
+                    Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
+                            .map(SimpleGrantedAuthority::new)
+                            .collect(Collectors.toList());
+        }
 
         User principal = new User(claims.getSubject(), "", authorities);
 
@@ -98,29 +109,12 @@ public class TokenProvider {
 
     public boolean validateToken(String authToken) {
         try {
-            jwtParser.parseClaimsJws(authToken);
-
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(authToken);
             return true;
-        } catch (ExpiredJwtException e) {
-            this.securityMetersService.trackTokenExpired();
-
-            log.trace(INVALID_JWT_TOKEN, e);
-        } catch (UnsupportedJwtException e) {
-            this.securityMetersService.trackTokenUnsupported();
-
-            log.trace(INVALID_JWT_TOKEN, e);
-        } catch (MalformedJwtException e) {
-            this.securityMetersService.trackTokenMalformed();
-
-            log.trace(INVALID_JWT_TOKEN, e);
-        } catch (SignatureException e) {
-            this.securityMetersService.trackTokenInvalidSignature();
-
-            log.trace(INVALID_JWT_TOKEN, e);
-        } catch (IllegalArgumentException e) { // TODO: should we let it bubble (no catch), to avoid defensive programming and follow the fail-fast principle?
-            log.error("Token validation error {}", e.getMessage());
+        } catch (JwtException | IllegalArgumentException e) {
+            log.info("Invalid JWT token.");
+            log.trace("Invalid JWT token trace.", e);
         }
-
         return false;
     }
 }

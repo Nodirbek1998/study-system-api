@@ -1,29 +1,23 @@
 package uz.tatu.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
-import javax.persistence.*;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
-/**
- * A TaskAnswer.
- */
+import javax.persistence.*;
+
 @Data
 @EqualsAndHashCode
 @ToString
 @Entity
-@Table(name = "task_answer")
+@Table(name = "task_answer_user")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class TaskAnswer implements Serializable {
+public class TaskAnswerUser {
 
     private static final long serialVersionUID = 1L;
 
@@ -33,10 +27,14 @@ public class TaskAnswer implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = "user", allowSetters = true)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private User users;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = "taskAnswer", allowSetters = true)
+    @NotFound(action = NotFoundAction.IGNORE)
+    private TaskAnswer taskAnswer;
 
 }

@@ -1,6 +1,5 @@
 package uz.tatu.service.mapper;
 
-import java.util.Set;
 import org.mapstruct.*;
 import uz.tatu.domain.TestAnswer;
 import uz.tatu.service.dto.TestAnswerDTO;
@@ -8,11 +7,15 @@ import uz.tatu.service.dto.TestAnswerDTO;
 /**
  * Mapper for the entity {@link TestAnswer} and its DTO {@link TestAnswerDTO}.
  */
-@Mapper(componentModel = "spring", uses = { StudyUsersMapper.class })
+@Mapper(componentModel = "spring", uses = {})
 public interface TestAnswerMapper extends EntityMapper<TestAnswerDTO, TestAnswer> {
-    @Mapping(target = "studyUsers", source = "studyUsers", qualifiedByName = "idSet")
-    TestAnswerDTO toDto(TestAnswer s);
 
-    @Mapping(target = "removeStudyUser", ignore = true)
-    TestAnswer toEntity(TestAnswerDTO testAnswerDTO);
+    default TestAnswer fromId(Long id) {
+        if (id == null) {
+            return null;
+        }
+        TestAnswer testAnswer = new TestAnswer();
+        testAnswer.setId(id);
+        return testAnswer;
+    }
 }

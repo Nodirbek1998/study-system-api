@@ -8,11 +8,15 @@ import uz.tatu.service.dto.TaskAnswerDTO;
 /**
  * Mapper for the entity {@link TaskAnswer} and its DTO {@link TaskAnswerDTO}.
  */
-@Mapper(componentModel = "spring", uses = { StudyUsersMapper.class })
+@Mapper(componentModel = "spring", uses = { UserMapper.class })
 public interface TaskAnswerMapper extends EntityMapper<TaskAnswerDTO, TaskAnswer> {
-    @Mapping(target = "studyUsers", source = "studyUsers", qualifiedByName = "idSet")
-    TaskAnswerDTO toDto(TaskAnswer s);
 
-    @Mapping(target = "removeStudyUser", ignore = true)
-    TaskAnswer toEntity(TaskAnswerDTO taskAnswerDTO);
+    default TaskAnswer fromId(Long id) {
+        if (id == null) {
+            return null;
+        }
+        TaskAnswer taskAnswer = new TaskAnswer();
+        taskAnswer.setId(id);
+        return taskAnswer;
+    }
 }

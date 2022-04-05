@@ -1,48 +1,64 @@
 package uz.tatu.service.dto;
 
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import uz.tatu.config.Constants;
 import uz.tatu.domain.User;
+
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
+import java.time.Instant;
 
 /**
  * A DTO representing a user, with only the public attributes.
  */
+
+@Data
+@EqualsAndHashCode
+@ToString
 public class UserDTO {
 
     private Long id;
 
+    @NotBlank
+    @Pattern(regexp = Constants.LOGIN_REGEX)
+    @Size(min = 1, max = 50)
     private String login;
 
-    public UserDTO() {
-        // Empty constructor needed for Jackson.
-    }
+    @Size(max = 50)
+    private String firstName;
 
-    public UserDTO(User user) {
-        this.id = user.getId();
-        // Customize it here if you need, or not, firstName/lastName/etc
-        this.login = user.getLogin();
-    }
+    @Size(max = 50)
+    private String lastName;
 
-    public Long getId() {
-        return id;
-    }
+    @Email
+    @Size(min = 5, max = 254)
+    private String email;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    private Integer age;
 
-    public String getLogin() {
-        return login;
-    }
+    @Size(max = 256)
+    private String phone;
 
-    public void setLogin(String login) {
-        this.login = login;
-    }
+    @Size(max = 256)
+    private String imageUrl;
 
-    // prettier-ignore
-    @Override
-    public String toString() {
-        return "UserDTO{" +
-            "id='" + id + '\'' +
-            ", login='" + login + '\'' +
-            "}";
-    }
+    private boolean activated = false;
+
+    @Size(min = 2, max = 10)
+    private String langKey;
+
+    private String createdBy;
+
+    private Instant createdDate;
+
+    private String lastModifiedBy;
+
+    private Instant lastModifiedDate;
+
+    private Long authorities;
+
 }
