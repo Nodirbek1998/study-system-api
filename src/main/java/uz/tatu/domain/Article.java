@@ -3,14 +3,22 @@ package uz.tatu.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import javax.persistence.*;
 import javax.validation.constraints.*;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * A Article.
  */
+@Data
+@EqualsAndHashCode
+@ToString
 @Entity
 @Table(name = "article")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -32,157 +40,21 @@ public class Article implements Serializable {
     private String text;
 
     @Column(name = "created_at")
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private LocalDate updatedAt;
+    private LocalDateTime updatedAt;
 
     @ManyToOne
     @JsonIgnoreProperties(value = { "role", "groups", "testAnswers", "taskAnswers" }, allowSetters = true)
-    private StudyUsers studyUser;
+    private User users;
 
     @ManyToOne
     @JsonIgnoreProperties(value = { "role", "groups", "testAnswers", "taskAnswers" }, allowSetters = true)
-    private StudyUsers createdBy;
+    private User createdBy;
 
     @ManyToOne
     @JsonIgnoreProperties(value = { "role", "groups", "testAnswers", "taskAnswers" }, allowSetters = true)
-    private StudyUsers updatedBy;
+    private User updatedBy;
 
-    // jhipster-needle-entity-add-field - JHipster will add fields here
-
-    public Long getId() {
-        return this.id;
-    }
-
-    public Article id(Long id) {
-        this.setId(id);
-        return this;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public Article name(String name) {
-        this.setName(name);
-        return this;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getText() {
-        return this.text;
-    }
-
-    public Article text(String text) {
-        this.setText(text);
-        return this;
-    }
-
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    public LocalDate getCreatedAt() {
-        return this.createdAt;
-    }
-
-    public Article createdAt(LocalDate createdAt) {
-        this.setCreatedAt(createdAt);
-        return this;
-    }
-
-    public void setCreatedAt(LocalDate createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDate getUpdatedAt() {
-        return this.updatedAt;
-    }
-
-    public Article updatedAt(LocalDate updatedAt) {
-        this.setUpdatedAt(updatedAt);
-        return this;
-    }
-
-    public void setUpdatedAt(LocalDate updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public StudyUsers getStudyUser() {
-        return this.studyUser;
-    }
-
-    public void setStudyUser(StudyUsers studyUsers) {
-        this.studyUser = studyUsers;
-    }
-
-    public Article studyUser(StudyUsers studyUsers) {
-        this.setStudyUser(studyUsers);
-        return this;
-    }
-
-    public StudyUsers getCreatedBy() {
-        return this.createdBy;
-    }
-
-    public void setCreatedBy(StudyUsers studyUsers) {
-        this.createdBy = studyUsers;
-    }
-
-    public Article createdBy(StudyUsers studyUsers) {
-        this.setCreatedBy(studyUsers);
-        return this;
-    }
-
-    public StudyUsers getUpdatedBy() {
-        return this.updatedBy;
-    }
-
-    public void setUpdatedBy(StudyUsers studyUsers) {
-        this.updatedBy = studyUsers;
-    }
-
-    public Article updatedBy(StudyUsers studyUsers) {
-        this.setUpdatedBy(studyUsers);
-        return this;
-    }
-
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Article)) {
-            return false;
-        }
-        return id != null && id.equals(((Article) o).id);
-    }
-
-    @Override
-    public int hashCode() {
-        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
-        return getClass().hashCode();
-    }
-
-    // prettier-ignore
-    @Override
-    public String toString() {
-        return "Article{" +
-            "id=" + getId() +
-            ", name='" + getName() + "'" +
-            ", text='" + getText() + "'" +
-            ", createdAt='" + getCreatedAt() + "'" +
-            ", updatedAt='" + getUpdatedAt() + "'" +
-            "}";
-    }
 }
