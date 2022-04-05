@@ -1,12 +1,13 @@
 package uz.tatu.web.rest.vm;
 
+import uz.tatu.service.dto.UserDTO;
+
 import javax.validation.constraints.Size;
-import uz.tatu.service.dto.AdminUserDTO;
 
 /**
  * View Model extending the AdminUserDTO, which is meant to be used in the user management UI.
  */
-public class ManagedUserVM extends AdminUserDTO {
+public class ManagedUserVM extends UserDTO {
 
     public static final int PASSWORD_MIN_LENGTH = 4;
 
