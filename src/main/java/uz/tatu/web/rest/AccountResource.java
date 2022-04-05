@@ -13,8 +13,9 @@ import uz.tatu.repository.UserRepository;
 import uz.tatu.security.SecurityUtils;
 import uz.tatu.service.MailService;
 import uz.tatu.service.UserService;
-import uz.tatu.service.dto.AdminUserDTO;
 import uz.tatu.service.dto.PasswordChangeDTO;
+import uz.tatu.service.dto.UserDTO;
+import uz.tatu.service.mapper.UserMapper;
 import uz.tatu.web.rest.errors.*;
 import uz.tatu.web.rest.vm.KeyAndPasswordVM;
 import uz.tatu.web.rest.vm.ManagedUserVM;
@@ -39,11 +40,14 @@ public class AccountResource {
 
     private final UserService userService;
 
+    private final UserMapper userMapper;
+
     private final MailService mailService;
 
-    public AccountResource(UserRepository userRepository, UserService userService, MailService mailService) {
+    public AccountResource(UserRepository userRepository, UserService userService, UserMapper userMapper, MailService mailService) {
         this.userRepository = userRepository;
         this.userService = userService;
+        this.userMapper = userMapper;
         this.mailService = mailService;
     }
 
@@ -98,10 +102,10 @@ public class AccountResource {
      * @throws RuntimeException {@code 500 (Internal Server Error)} if the user couldn't be returned.
      */
     @GetMapping("/account")
-    public AdminUserDTO getAccount() {
+    public UserDTO getAccount() {
         return userService
             .getUserWithAuthorities()
-            .map(AdminUserDTO::new)
+            .map(userMapper::toDto)
             .orElseThrow(() -> new AccountResourceException("User could not be found"));
     }
 
@@ -113,7 +117,7 @@ public class AccountResource {
      * @throws RuntimeException {@code 500 (Internal Server Error)} if the user login wasn't found.
      */
     @PostMapping("/account")
-    public void saveAccount(@Valid @RequestBody AdminUserDTO userDTO) {
+    public void saveAccount(@Valid @RequestBody UserDTO userDTO) {
         String userLogin = SecurityUtils
             .getCurrentUserLogin()
             .orElseThrow(() -> new AccountResourceException("Current user login not found"));
