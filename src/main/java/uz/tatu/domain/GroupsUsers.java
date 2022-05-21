@@ -9,8 +9,10 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
+import uz.tatu.domain.enumeration.UserType;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 
 @Data
 @EqualsAndHashCode
@@ -37,5 +39,9 @@ public class GroupsUsers {
     @JsonIgnoreProperties(value = "group", allowSetters = true)
     @NotFound(action = NotFoundAction.IGNORE)
     private Groups groups;
+
+    @Size(max = 255)
+    @Column(name = "user_type")
+    private UserType userType;
 
 }

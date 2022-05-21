@@ -45,6 +45,7 @@ public class CacheConfiguration {
         return cm -> {
             createCache(cm, uz.tatu.repository.UserRepository.USERS_BY_LOGIN_CACHE);
             createCache(cm, uz.tatu.repository.UserRepository.USERS_BY_EMAIL_CACHE);
+            createCache(cm, uz.tatu.repository.UserRoleRepository.USERS_ROLE_BY_ID_CACHE);
             createCache(cm, uz.tatu.domain.User.class.getName());
             createCache(cm, uz.tatu.domain.Authority.class.getName());
             createCache(cm, uz.tatu.domain.User.class.getName() + ".authorities");

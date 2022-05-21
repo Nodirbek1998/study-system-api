@@ -11,6 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import uz.tatu.domain.audit.DateAudit;
 
 /**
  * A Images.
@@ -21,7 +22,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @Table(name = "images")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class Images implements Serializable {
+public class Images extends DateAudit implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -39,13 +40,6 @@ public class Images implements Serializable {
 
     @Column(name = "content_type")
     private String contentType;
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @ManyToOne
-    @JsonIgnoreProperties(value = { "role", "groups", "testAnswers", "taskAnswers" }, allowSetters = true)
-    private User user;
 
 
 }

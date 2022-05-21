@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
@@ -143,9 +144,9 @@ public class SubjectsResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of subjects in body.
      */
     @GetMapping("/subjects")
-    public ResponseEntity<List<SubjectsDTO>> getAllSubjects(@org.springdoc.api.annotations.ParameterObject Pageable pageable) {
+    public ResponseEntity<List<SubjectsDTO>> getAllSubjects(@org.springdoc.api.annotations.ParameterObject Pageable pageable, @RequestParam MultiValueMap<String, String> queryParam) {
         log.debug("REST request to get a page of Subjects");
-        Page<SubjectsDTO> page = subjectsService.findAll(pageable);
+        Page<SubjectsDTO> page = subjectsService.findAll(pageable, queryParam);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

@@ -15,7 +15,7 @@ import javax.persistence.*;
 @EqualsAndHashCode
 @ToString
 @Entity
-@Table(name = "edo_user_role")
+@Table(name = "user_role")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class UserRole {
 

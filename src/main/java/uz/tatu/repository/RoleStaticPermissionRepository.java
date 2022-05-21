@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository;
 import uz.tatu.domain.RoleStaticPermission;
 import uz.tatu.domain.enumeration.EnumStaticPermission;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -20,4 +22,6 @@ public interface RoleStaticPermissionRepository extends JpaRepository<RoleStatic
     void deleteByRoles_IdAndStaticPermission(Long roleId, EnumStaticPermission permission);
 
     Optional<RoleStaticPermission> findFirstByRoles_IdAndStaticPermission(Long roleId, EnumStaticPermission permission);
+
+    List<RoleStaticPermission> findByRoles_Id(Long roleId);
 }

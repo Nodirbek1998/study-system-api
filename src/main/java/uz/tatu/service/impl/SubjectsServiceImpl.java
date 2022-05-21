@@ -7,11 +7,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.MultiValueMap;
 import uz.tatu.domain.Subjects;
 import uz.tatu.repository.SubjectsRepository;
 import uz.tatu.service.SubjectsService;
 import uz.tatu.service.dto.SubjectsDTO;
 import uz.tatu.service.mapper.SubjectsMapper;
+import uz.tatu.service.utils.RequestUtil;
 
 /**
  * Service Implementation for managing {@link Subjects}.
@@ -56,9 +58,15 @@ public class SubjectsServiceImpl implements SubjectsService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<SubjectsDTO> findAll(Pageable pageable) {
+    public Page<SubjectsDTO> findAll(Pageable pageable, MultiValueMap<String, String> queryParam) {
         log.debug("Request to get all Subjects");
-        return subjectsRepository.findAll(pageable).map(subjectsMapper::toDto);
+        Page<Subjects> response = null;
+        if (RequestUtil.checkValueNumber(queryParam, "groupId")){
+            response = subjectsRepository.findByGroups_Id(Long.valueOf(queryParam.getFirst("groupId")), pageable);
+        }else {
+            response = subjectsRepository.findAll(pageable);
+        }
+        return response.map(subjectsMapper::toDto);
     }
 
     @Override

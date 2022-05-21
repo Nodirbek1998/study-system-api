@@ -11,6 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import uz.tatu.domain.audit.DateAudit;
 
 /**
  * A Files.
@@ -21,7 +22,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @Table(name = "files")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class Files implements Serializable {
+public class Files extends DateAudit implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -39,9 +40,6 @@ public class Files implements Serializable {
 
     @Column(name = "content_type")
     private String contentType;
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
 
     @ManyToOne
     @JsonIgnoreProperties(value = { "role", "groups", "testAnswers", "taskAnswers" }, allowSetters = true)

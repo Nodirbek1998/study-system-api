@@ -8,15 +8,20 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode
 @ToString
-public class UserRoleDto {
+public class GroupsUsersDTO {
 
     private Long id;
 
     private Long userId;
 
-    private Long roleId;
+    private Long groupId;
 
-    private String login;
+    private String firstName;
 
-    private String password;
+    private String lastName;
+
+    private String groupName;
+
+
+
 }

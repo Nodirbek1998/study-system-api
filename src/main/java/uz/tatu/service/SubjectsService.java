@@ -3,6 +3,7 @@ package uz.tatu.service;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.util.MultiValueMap;
 import uz.tatu.service.dto.SubjectsDTO;
 
 /**
@@ -31,7 +32,7 @@ public interface SubjectsService {
      * @param pageable the pagination information.
      * @return the list of entities.
      */
-    Page<SubjectsDTO> findAll(Pageable pageable);
+    Page<SubjectsDTO> findAll(Pageable pageable, MultiValueMap<String, String> queryParam);
 
     /**
      * Get the "id" subjects.

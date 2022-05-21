@@ -126,7 +126,7 @@ spring:
       hibernate.query.fail_on_pagination_over_collection_fetch: true
       hibernate.query.in_clause_parameter_padding: true
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
       naming:
         physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
         implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
@@ -212,3 +212,14 @@ jhipster:
 # ===================================================================
 
 # application:
+
+application:
+  settings:
+    filepath: D:/home/studysystem/
+    chathost: http://kdb.startsoft.uz/rocket
+    weatherapikey: 6710bedbe9bf347a4bc9a75f58c35555
+    serverhost: myanor.uz
+    serverredirecthost: http://myanor.startsoft.uz
+    exchangeurl: https://ib.kdb.uz/xchrts.json
+    internalJurnalForCard: 8
+    receiverJurnalId: 67

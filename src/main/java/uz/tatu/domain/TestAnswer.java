@@ -13,6 +13,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import uz.tatu.domain.audit.DateAudit;
 
 /**
  * A TestAnswer.
@@ -23,7 +24,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @Table(name = "test_answer")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class TestAnswer implements Serializable {
+public class TestAnswer extends DateAudit implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -32,12 +33,6 @@ public class TestAnswer implements Serializable {
     @SequenceGenerator(name = "sequenceGenerator")
     @Column(name = "id")
     private Long id;
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 
     @Column(name = "jhi_right")
     private Boolean right;

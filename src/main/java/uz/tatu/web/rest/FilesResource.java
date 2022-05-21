@@ -1,27 +1,48 @@
 package uz.tatu.web.rest;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.web.servlet.MultipartProperties;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.testcontainers.shaded.org.apache.commons.io.FilenameUtils;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
+import uz.tatu.config.ApplicationProperties;
+import liquibase.util.StringUtils;
+import uz.tatu.domain.User;
+import uz.tatu.domain.enumeration.EnumStaticPermission;
 import uz.tatu.repository.FilesRepository;
 import uz.tatu.service.FilesService;
+import uz.tatu.service.UserService;
 import uz.tatu.service.dto.FilesDTO;
+import uz.tatu.service.utils.DateUtils;
+import uz.tatu.service.utils.FileHelper;
+import uz.tatu.service.utils.ImageUtils;
 import uz.tatu.web.rest.errors.BadRequestAlertException;
+
+import javax.imageio.ImageIO;
 
 /**
  * REST controller for managing {@link uz.tatu.domain.Files}.
@@ -37,12 +58,23 @@ public class FilesResource {
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
+    private final ApplicationProperties applicationSettingDto;
     private final FilesService filesService;
+    private final UserService userService;
+    private final MessageSource messageSource;
+    private final MultipartProperties multipartProperties;
 
     private final FilesRepository filesRepository;
 
-    public FilesResource(FilesService filesService, FilesRepository filesRepository) {
+    public FilesResource(ApplicationProperties applicationSettingDto,
+                         FilesService filesService, UserService userService,
+                         MessageSource messageSource, MultipartProperties multipartProperties,
+                         FilesRepository filesRepository) {
+        this.applicationSettingDto = applicationSettingDto;
         this.filesService = filesService;
+        this.userService = userService;
+        this.messageSource = messageSource;
+        this.multipartProperties = multipartProperties;
         this.filesRepository = filesRepository;
     }
 
@@ -98,6 +130,65 @@ public class FilesResource {
             .ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, filesDTO.getId().toString()))
             .body(result);
+    }
+
+    @PostMapping("/files-upload")
+    public ResponseEntity<FilesDTO> uploadFiles(@RequestParam("type") int type,
+                                                   @RequestParam("file") MultipartFile file,
+                                                   @RequestParam(value = "name", required = false) String name) throws Exception {
+        Optional<User> currentUser = userService.getUserWithAuthorities();
+        if (!userService.getAccessMethod(EnumStaticPermission.EdoFilesAdd, currentUser)) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .build();
+        }
+        log.debug("REST request to save EdoFiles : {}", file.getName());
+        LocalDate currentdate = DateUtils.getSysLocaleDate();
+        if (file.getSize() == 0) {
+            throw new BadRequestAlertException(messageSource.getMessage("file.validation.not.available", null, LocaleContextHolder.getLocale()), ENTITY_NAME, "file");
+        }
+        String filePath = "";
+        if (type == 1) {    //userlarni rasmlarini saqlash uchun
+            if (file.getSize() > multipartProperties.getMaxFileSize().toBytes()) {
+                throw new BadRequestAlertException(messageSource.getMessage("file.validation.max.file.size", io.jsonwebtoken.lang.Objects.toObjectArray(5), LocaleContextHolder.getLocale()), ENTITY_NAME, "file error");
+            }
+            filePath = FileHelper.getUploadFilePath(this.applicationSettingDto.getApplicationSettingDto().getFilepath() + FileHelper.getPhotoDirectory(), currentdate);
+
+        } else {    // qolgan upload qilinadigan hamma fayllar
+            if (file.getSize() > 200 * 1024 * 1024) {
+                throw new BadRequestAlertException(messageSource.getMessage("file.validation.max.file.size", io.jsonwebtoken.lang.Objects.toObjectArray(100), LocaleContextHolder.getLocale()), ENTITY_NAME, "file error");
+            }
+            filePath = FileHelper.getUploadFilePath(this.applicationSettingDto.getApplicationSettingDto().getFilepath() + FileHelper.getFilesDirectory(), currentdate);
+        }
+
+        String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
+
+        if (!StringUtils.isEmpty(fileExtension) && fileExtension.equalsIgnoreCase("exe")) {
+            throw new BadRequestAlertException(messageSource.getMessage("file.validation.format.not.valid", io.jsonwebtoken.lang.Objects.toObjectArray(fileExtension), LocaleContextHolder.getLocale()), ENTITY_NAME, "fileFormat");
+        }
+
+        String fileName = Stream.of(name, file.getOriginalFilename()).filter(java.util.Objects::nonNull).findFirst().orElse(null);
+        FilesDTO result;
+        if (type == 3 && filesService.isDocFile(fileExtension)) {
+            result = filesService.saveFileDocFile(file, currentUser.get(), filePath);
+        } else {
+            result = filesService.saveFileAllFile(file, currentUser.get(), filePath);
+        }
+
+        if (type == 1) {
+            BufferedImage image = ImageIO.read(file.getInputStream());
+            if (image.getWidth() < 200 || image.getHeight() < 200) {
+                ImageIO.write(image, "png", new File(filePath + result.getId() + "_thumb.png"));
+            } else {
+                BufferedImage scaled = ImageUtils.getScaledInstance(image, 200, 200, RenderingHints.VALUE_INTERPOLATION_BILINEAR, true);
+                ImageIO.write(scaled, "png", new File(filePath + result.getId() + "_thumb.png"));
+            }
+        }
+
+
+        return ResponseEntity.created(new URI("/api/files/" + result.getId()))
+                .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
+                .body(result);
     }
 
     /**

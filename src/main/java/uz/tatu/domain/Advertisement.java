@@ -1,24 +1,23 @@
 package uz.tatu.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
+import uz.tatu.domain.audit.DateAudit;
 
 import javax.persistence.*;
+import java.io.Serializable;
+import java.util.List;
 
 @Data
 @EqualsAndHashCode
 @ToString
 @Entity
-@Table(name = "subject_group")
+@Table(name = "article")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class SubjectGroup {
-
+public class Advertisement extends DateAudit implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -27,15 +26,13 @@ public class SubjectGroup {
     @Column(name = "id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnoreProperties(value = "subject", allowSetters = true)
-    @NotFound(action = NotFoundAction.IGNORE)
-    private Subjects subject;
+    @Column(name = "name")
+    private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnoreProperties(value = "group", allowSetters = true)
-    @NotFound(action = NotFoundAction.IGNORE)
-    private Groups group;
+    @Column(name = "body")
+    private String body;
 
+    @OneToOne
+    private Images images;
 
 }

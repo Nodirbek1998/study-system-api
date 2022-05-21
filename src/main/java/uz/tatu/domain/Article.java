@@ -12,6 +12,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import uz.tatu.domain.audit.DateAudit;
 
 /**
  * A Article.
@@ -22,7 +23,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @Table(name = "article")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class Article implements Serializable {
+public class Article extends DateAudit implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -39,12 +40,6 @@ public class Article implements Serializable {
     @Column(name = "text", length = 1000)
     private String text;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
     @ManyToOne
     @JsonIgnoreProperties(value = { "role", "groups", "testAnswers", "taskAnswers" }, allowSetters = true)
     private User users;
@@ -56,5 +51,8 @@ public class Article implements Serializable {
     @ManyToOne
     @JsonIgnoreProperties(value = { "role", "groups", "testAnswers", "taskAnswers" }, allowSetters = true)
     private User updatedBy;
+
+    @OneToOne
+    private Images images;
 
 }

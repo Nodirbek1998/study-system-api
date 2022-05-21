@@ -11,6 +11,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import uz.tatu.domain.audit.DateAudit;
 import uz.tatu.domain.enumeration.EnumTest;
 
 /**
@@ -22,7 +23,7 @@ import uz.tatu.domain.enumeration.EnumTest;
 @Entity
 @Table(name = "tests")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class Tests implements Serializable {
+public class Tests extends DateAudit implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

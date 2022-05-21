@@ -4,12 +4,18 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import uz.tatu.domain.Groups;
 import uz.tatu.repository.GroupsRepository;
+import uz.tatu.repository.SubjectsRepository;
 import uz.tatu.service.GroupsService;
+import uz.tatu.service.GroupsUsersService;
+import uz.tatu.service.SubjectsService;
 import uz.tatu.service.dto.GroupsDTO;
 import uz.tatu.service.mapper.GroupsMapper;
 
@@ -26,9 +32,15 @@ public class GroupsServiceImpl implements GroupsService {
 
     private final GroupsMapper groupsMapper;
 
-    public GroupsServiceImpl(GroupsRepository groupsRepository, GroupsMapper groupsMapper) {
+    private final GroupsUsersService groupsUsersService;
+
+    private final SubjectsService subjectsService;
+
+    public GroupsServiceImpl(GroupsRepository groupsRepository, GroupsMapper groupsMapper, GroupsUsersService groupsUsersService, SubjectsService subjectsService) {
         this.groupsRepository = groupsRepository;
         this.groupsMapper = groupsMapper;
+        this.groupsUsersService = groupsUsersService;
+        this.subjectsService = subjectsService;
     }
 
     @Override
@@ -69,7 +81,15 @@ public class GroupsServiceImpl implements GroupsService {
     @Transactional(readOnly = true)
     public Optional<GroupsDTO> findOne(Long id) {
         log.debug("Request to get Groups : {}", id);
-        return groupsRepository.findOneWithEagerRelationships(id).map(groupsMapper::toDto);
+        MultiValueMap<String, String> queryParam = new LinkedMultiValueMap<>();
+        Pageable pageable =  PageRequest.of(0, 100);
+        Optional<GroupsDTO> groupsDTO = groupsRepository.findById(id).map(groupsMapper::toDto);
+        if (groupsDTO.isPresent()){
+            queryParam.set("groupId", id + "");
+            groupsDTO.get().setGroupsUsersList(groupsUsersService.findAll(queryParam, pageable).getContent());
+            groupsDTO.get().setSubjects(subjectsService.findAll(pageable, queryParam).getContent());
+        }
+        return groupsDTO;
     }
 
     @Override

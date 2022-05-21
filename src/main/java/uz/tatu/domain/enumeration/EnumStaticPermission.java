@@ -63,4 +63,9 @@ public enum EnumStaticPermission {
     TaskView,
 
     HistoryView,
+
+    UserRoleAdd,
+    UserRoleUpdate,
+    UserRoleDelete,
+    UserRoleView, EdoDtRoleStaticPermissionAdd, EdoUserRoleView, EdoFilesAdd,
 }

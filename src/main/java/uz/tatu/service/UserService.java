@@ -3,6 +3,7 @@ package uz.tatu.service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,14 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tech.jhipster.security.RandomUtil;
 import uz.tatu.config.Constants;
-import uz.tatu.domain.Authority;
-import uz.tatu.domain.Role;
-import uz.tatu.domain.User;
-import uz.tatu.domain.UserRole;
-import uz.tatu.repository.AuthorityRepository;
-import uz.tatu.repository.RoleRepository;
-import uz.tatu.repository.UserRepository;
-import uz.tatu.repository.UserRoleRepository;
+import uz.tatu.domain.*;
+import uz.tatu.domain.enumeration.EnumStaticPermission;
+import uz.tatu.repository.*;
 import uz.tatu.security.SecurityUtils;
 import uz.tatu.service.dto.UserDTO;
 import uz.tatu.service.mapper.UserMapper;
@@ -49,13 +45,15 @@ public class UserService {
     private final AuthorityRepository authorityRepository;
 
     private final CacheManager cacheManager;
+    
+    private final RoleStaticPermissionRepository roleStaticPermissionRepository;
 
     public UserService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
             UserRoleRepository userRoleRepository, RoleRepository roleRepository, UserMapper userMapper, AuthorityRepository authorityRepository,
-            CacheManager cacheManager
-    ) {
+            CacheManager cacheManager,
+            RoleStaticPermissionRepository roleStaticPermissionRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userRoleRepository = userRoleRepository;
@@ -63,6 +61,7 @@ public class UserService {
         this.userMapper = userMapper;
         this.authorityRepository = authorityRepository;
         this.cacheManager = cacheManager;
+        this.roleStaticPermissionRepository = roleStaticPermissionRepository;
     }
 
     public Optional<User> activateRegistration(String key) {
@@ -103,6 +102,34 @@ public class UserService {
                 this.clearUserCaches(user);
                 return user;
             });
+    }
+    @Transactional(readOnly = true)
+    public boolean getAccessMethod(EnumStaticPermission permission) {
+        Optional<User> currentUser = getUserWithAuthorities();
+        AtomicBoolean result = new AtomicBoolean(false);
+        currentUser.ifPresent(user->{
+            List<EnumStaticPermission> staticPermissions = roleStaticPermissionRepository.findByRoles_Id(getDefaultRoleId(user.getAuthorities()))
+                    .stream().map(RoleStaticPermission::getStaticPermission).collect(Collectors.toList());
+            result.set(staticPermissions.stream().anyMatch(staticPermission -> staticPermission.equals(permission)));
+        });
+        return true;
+//        return result.get();
+    }
+
+    @Transactional(readOnly = true)
+    public boolean getAccessMethod(EnumStaticPermission permission, Optional<User> currentUser) {
+        if(!currentUser.isPresent()){
+            return false;
+        }
+
+        AtomicBoolean result = new AtomicBoolean(false);
+        currentUser.ifPresent(user->{
+            List<EnumStaticPermission> staticPermissions = roleStaticPermissionRepository.findByRoles_Id(getDefaultRoleId(user.getAuthorities()))
+                    .stream().map(RoleStaticPermission::getStaticPermission).collect(Collectors.toList());
+            result.set(staticPermissions.stream().anyMatch(staticPermission -> staticPermission.equals(permission)));
+        });
+        return true;
+//        return result.get();
     }
 
     public User registerUser(UserDTO userDTO, String password) {
@@ -193,6 +220,27 @@ public class UserService {
         return user;
     }
 
+    @Transactional(readOnly = true)
+    public boolean getAccessMethodForProduction(EnumStaticPermission permission, Optional<User> currentUser) {
+        if(!currentUser.isPresent()){
+            return false;
+        }
+
+        AtomicBoolean result = new AtomicBoolean(false);
+        currentUser.ifPresent(user->{
+            List<EnumStaticPermission> staticPermissions = roleStaticPermissionRepository.findByRoles_Id(getDefaultRoleId(user.getAuthorities()))
+                    .stream().map(RoleStaticPermission::getStaticPermission).collect(Collectors.toList());
+            result.set(staticPermissions.stream().anyMatch(staticPermission -> staticPermission.equals(permission)));
+        });
+        return result.get();
+    }
+
+    private Long getDefaultRoleId(Long roleId){
+        if (roleId > 0) {
+            return roleId;
+        }
+        return 1L;
+    }
     /**
      * Update all information for a specific user, and return the modified user.
      *
