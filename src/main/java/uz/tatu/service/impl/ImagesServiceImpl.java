@@ -1,5 +1,6 @@
 package uz.tatu.service.impl;
 
+import java.io.*;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,9 +8,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.testcontainers.shaded.org.apache.commons.io.FilenameUtils;
 import uz.tatu.domain.Images;
+import uz.tatu.domain.User;
 import uz.tatu.repository.ImagesRepository;
 import uz.tatu.service.ImagesService;
+import uz.tatu.service.dto.FilesDTO;
 import uz.tatu.service.dto.ImagesDTO;
 import uz.tatu.service.mapper.ImagesMapper;
 
@@ -72,5 +77,24 @@ public class ImagesServiceImpl implements ImagesService {
     public void delete(Long id) {
         log.debug("Request to delete Images : {}", id);
         imagesRepository.deleteById(id);
+    }
+
+    @Override
+    public ImagesDTO saveImage(MultipartFile file, User user, String filePath) throws IOException {
+        String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
+
+        ImagesDTO imagesDTO = new ImagesDTO();
+        imagesDTO.setContentType(file.getContentType());
+        imagesDTO.setImageSize(file.getSize());
+        imagesDTO.setName(file.getOriginalFilename());
+        imagesDTO.setCreatedBy(user.getId());
+        ImagesDTO result = save(imagesDTO);
+
+        File afile = new File(filePath + result.getId() + "." + fileExtension);
+        BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(afile));
+        stream.write(file.getBytes());
+        stream.close();
+        return result;
+
     }
 }

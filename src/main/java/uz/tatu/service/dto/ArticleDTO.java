@@ -35,4 +35,6 @@ public class ArticleDTO implements Serializable {
 
     private Long updatedById;
 
+    private ImagesDTO imagesDTO;
+
 }

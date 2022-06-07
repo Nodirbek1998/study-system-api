@@ -1,32 +1,34 @@
 package uz.tatu.service.dto;
 
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import java.io.Serializable;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.Objects;
 
 /**
- * A DTO for the {@link uz.tatu.domain.Images} entity.
+ * A DTO for the {@link uz.tatu.domain.Reminder} entity.
  */
+
 
 @Data
 @EqualsAndHashCode
 @ToString
-public class ImagesDTO implements Serializable {
+public class ReminderDTO {
 
     private Long id;
 
-    private String name;
+    private String title;
 
-    private Long imageSize;
-
-    private String contentType;
+    private String body;
 
     private LocalDate createdAt;
 
+    private LocalDate updatedAt;
+
     private Long createdBy;
+
 
 }

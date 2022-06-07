@@ -3,6 +3,8 @@ package uz.tatu.service;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.util.MultiValueMap;
+import uz.tatu.service.custom.ArticleListDTO;
 import uz.tatu.service.dto.ArticleDTO;
 
 /**
@@ -31,7 +33,7 @@ public interface ArticleService {
      * @param pageable the pagination information.
      * @return the list of entities.
      */
-    Page<ArticleDTO> findAll(Pageable pageable);
+    Page<ArticleListDTO> findAll(MultiValueMap<String, String > queryParam, Pageable pageable);
 
     /**
      * Get the "id" article.

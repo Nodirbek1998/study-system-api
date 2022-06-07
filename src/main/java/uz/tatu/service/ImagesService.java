@@ -1,8 +1,12 @@
 package uz.tatu.service;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
+import uz.tatu.domain.User;
 import uz.tatu.service.dto.ImagesDTO;
 
 /**
@@ -47,4 +51,6 @@ public interface ImagesService {
      * @param id the id of the entity.
      */
     void delete(Long id);
+
+    ImagesDTO saveImage(MultipartFile file, User user, String filePath) throws IOException;
 }

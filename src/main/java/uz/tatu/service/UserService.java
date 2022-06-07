@@ -352,6 +352,10 @@ public class UserService {
         return userRepository.findById(id);
     }
 
+    public Optional<UserDTO> findOne(Long id){
+        return userRepository.findById(id).map(userMapper::toDto);
+    }
+
     @Transactional(readOnly = true)
     public Optional<User> getUserWithAuthorities() {
 //        return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneWithAuthoritiesByLogin);

@@ -1,10 +1,5 @@
 package uz.tatu.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import javax.persistence.*;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,16 +8,15 @@ import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import uz.tatu.domain.audit.DateAudit;
 
-/**
- * A Images.
- */
+import javax.persistence.*;
+
 @Data
 @EqualsAndHashCode
 @ToString
 @Entity
-@Table(name = "images")
+@Table(name = "task")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class Images extends DateAudit implements Serializable {
+public class Reminder extends DateAudit {
 
     private static final long serialVersionUID = 1L;
 
@@ -32,15 +26,10 @@ public class Images extends DateAudit implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "name")
-    private String name;
+    private String title;
 
-    @Column(name = "image_size")
-    private Double imageSize;
+    private String body;
 
-    @Column(name = "content_type")
-    private String contentType;
-
-
-
+    @ManyToOne
+    private User createdBy;
 }
