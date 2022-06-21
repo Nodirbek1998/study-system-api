@@ -45,5 +45,11 @@ public class Units extends DateAudit implements Serializable {
     @JsonIgnoreProperties(value = { "subjects" }, allowSetters = true)
     private Subjects subjects;
 
+    @ManyToOne
+    private Files files;
+
+    @ManyToOne
+    private Groups groups;
+
 
 }

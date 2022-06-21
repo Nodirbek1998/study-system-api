@@ -54,7 +54,7 @@ public interface FilesService {
 
     boolean isDocFile(String fileExtension);
 
-    FilesDTO saveFileDocFile(MultipartFile file, User user, String filePath);
+    FilesDTO saveFileDocFile(MultipartFile file, User user, String filePath) throws Exception;
 
     FilesDTO saveFileAllFile(MultipartFile file, User user, String filePath) throws IOException;
 }

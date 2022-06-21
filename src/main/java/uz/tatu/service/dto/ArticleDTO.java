@@ -37,4 +37,6 @@ public class ArticleDTO implements Serializable {
 
     private ImagesDTO imagesDTO;
 
+    private String status;
+
 }

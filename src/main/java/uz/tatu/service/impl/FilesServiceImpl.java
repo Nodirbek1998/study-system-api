@@ -2,6 +2,9 @@ package uz.tatu.service.impl;
 
 import java.io.*;
 import java.util.Optional;
+
+import com.aspose.words.Document;
+import com.aspose.words.SaveFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -88,8 +91,34 @@ public class FilesServiceImpl implements FilesService {
     }
 
     @Override
-    public FilesDTO saveFileDocFile(MultipartFile file, User user, String filePath) {
-        return null;
+    public FilesDTO saveFileDocFile(MultipartFile file, User user, String filePath) throws Exception {
+        String fileExtension = FilenameUtils.getExtension(file.getOriginalFilename());
+        log.debug("REST request to saveFileDocFile: {}", fileExtension);
+        FilesDTO fileDto = new FilesDTO();
+        fileDto.setContentType("application/pdf");
+        fileDto.setFileSize(file.getSize());
+        fileDto.setName(file.getOriginalFilename().replace("docx","pdf").replace("doc","pdf"));
+        fileDto.setCreatedAt(DateUtils.getSysLocaleDate());
+        FilesDTO result = save(fileDto);
+
+        File afile = new File(filePath + result.getId() + ".pdf");
+        BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(afile));
+        stream.write(docToPdf(file.getBytes(), fileExtension));
+        stream.close();
+
+        return result;
+    }
+
+    public byte[] docToPdf(byte[] file, String fileExtension) throws Exception{
+        if(!isDocFile(fileExtension)){
+            return file;
+        }
+
+        Document document = new Document(new ByteArrayInputStream(file));
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        document.save(outputStream, SaveFormat.PDF);
+
+        return outputStream.toByteArray();
     }
 
     @Override

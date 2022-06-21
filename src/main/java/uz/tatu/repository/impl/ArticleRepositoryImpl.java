@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.MultiValueMap;
 import uz.tatu.service.custom.ArticleListDTO;
+import uz.tatu.service.utils.RequestUtil;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -33,6 +34,7 @@ public class ArticleRepositoryImpl {
                 "       a.created_at as created_at,\n" +
                 "       ju.first_name as first_name,\n" +
                 "       a.body as body,\n" +
+                "       a.status as status,\n" +
                 "       a.name as name,\n" +
                 "       a.text as text,\n" +
                 "       i.id as images_id\n" +
@@ -67,10 +69,16 @@ public class ArticleRepositoryImpl {
 
 
     private void setProperty(Query query, MultiValueMap<String, String> queryParams) {
-
+        if (RequestUtil.checkValue(queryParams, "status")) {
+            query.setParameter("status", queryParams.getFirst("status"));
+        }
     }
     private StringBuilder getQueryBuilder(MultiValueMap<String, String> queryParams) {
         StringBuilder queryBuilder = new StringBuilder();
+
+        if (RequestUtil.checkValue(queryParams, "status")) {
+            queryBuilder.append(" AND a.status = :status ");
+        }
         return queryBuilder;
     }
 }

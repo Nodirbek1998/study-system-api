@@ -13,6 +13,7 @@ import lombok.ToString;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import uz.tatu.domain.audit.DateAudit;
+import uz.tatu.domain.enumeration.EnumArticleStatus;
 
 /**
  * A Article.
@@ -54,5 +55,10 @@ public class Article extends DateAudit implements Serializable {
 
     @OneToOne
     private Images images;
+
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private EnumArticleStatus status;
+
 
 }

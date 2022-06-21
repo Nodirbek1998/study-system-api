@@ -7,9 +7,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.MultiValueMap;
 import uz.tatu.domain.Units;
 import uz.tatu.repository.UnitsRepository;
+import uz.tatu.repository.impl.UnitsRepositoryImpl;
 import uz.tatu.service.UnitsService;
+import uz.tatu.service.custom.UnitsListDTO;
 import uz.tatu.service.dto.UnitsDTO;
 import uz.tatu.service.mapper.UnitsMapper;
 
@@ -24,10 +27,13 @@ public class UnitsServiceImpl implements UnitsService {
 
     private final UnitsRepository unitsRepository;
 
+    private final UnitsRepositoryImpl unitsRepositoryImpl;
+
     private final UnitsMapper unitsMapper;
 
-    public UnitsServiceImpl(UnitsRepository unitsRepository, UnitsMapper unitsMapper) {
+    public UnitsServiceImpl(UnitsRepository unitsRepository, UnitsRepositoryImpl unitsRepositoryImpl, UnitsMapper unitsMapper) {
         this.unitsRepository = unitsRepository;
+        this.unitsRepositoryImpl = unitsRepositoryImpl;
         this.unitsMapper = unitsMapper;
     }
 
@@ -56,9 +62,9 @@ public class UnitsServiceImpl implements UnitsService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<UnitsDTO> findAll(Pageable pageable) {
+    public Page<UnitsListDTO> findAll(Pageable pageable, MultiValueMap<String , String> queryParam) {
         log.debug("Request to get all Units");
-        return unitsRepository.findAll(pageable).map(unitsMapper::toDto);
+        return unitsRepositoryImpl.findAll(pageable, queryParam);
     }
 
     @Override

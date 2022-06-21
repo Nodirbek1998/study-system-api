@@ -31,4 +31,6 @@ public class UnitsDTO implements Serializable {
 
     private Long subjectId;
 
+    private Long groupId;
+
 }

@@ -3,6 +3,8 @@ package uz.tatu.service;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.util.MultiValueMap;
+import uz.tatu.service.custom.GroupListDTO;
 import uz.tatu.service.dto.GroupsDTO;
 
 /**
@@ -31,7 +33,7 @@ public interface GroupsService {
      * @param pageable the pagination information.
      * @return the list of entities.
      */
-    Page<GroupsDTO> findAll(Pageable pageable);
+    Page<GroupListDTO> findAll(Pageable pageable, MultiValueMap<String, String> queryParams);
 
     /**
      * Get all the groups with eager load of many-to-many relationships.

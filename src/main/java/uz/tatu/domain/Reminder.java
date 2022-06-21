@@ -14,7 +14,7 @@ import javax.persistence.*;
 @EqualsAndHashCode
 @ToString
 @Entity
-@Table(name = "task")
+@Table(name = "reminder")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Reminder extends DateAudit {
 

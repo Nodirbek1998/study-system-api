@@ -3,6 +3,8 @@ package uz.tatu.service;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.util.MultiValueMap;
+import uz.tatu.service.custom.UnitsListDTO;
 import uz.tatu.service.dto.UnitsDTO;
 
 /**
@@ -31,7 +33,7 @@ public interface UnitsService {
      * @param pageable the pagination information.
      * @return the list of entities.
      */
-    Page<UnitsDTO> findAll(Pageable pageable);
+    Page<UnitsListDTO> findAll(Pageable pageable, MultiValueMap<String , String> queryParam);
 
     /**
      * Get the "id" units.

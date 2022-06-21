@@ -37,5 +37,15 @@ public class Task extends DateAudit implements Serializable {
     @Column(name = "deadline")
     private LocalDateTime deadline;
 
+    @ManyToOne
+    private Files files;
+
+    @ManyToOne
+    private Units units;
+
+    @Column(name = "ball")
+    private Double ball;
+
+
 
 }

@@ -1,17 +1,24 @@
 package uz.tatu.service.impl;
 
+import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
+import uz.tatu.domain.Groups;
 import uz.tatu.domain.Subjects;
 import uz.tatu.repository.SubjectsRepository;
+import uz.tatu.repository.impl.SubjectsGroupsRepositoryImpl;
 import uz.tatu.service.SubjectsService;
+import uz.tatu.service.custom.GroupListDTO;
 import uz.tatu.service.dto.SubjectsDTO;
+import uz.tatu.service.mapper.GroupsMapper;
 import uz.tatu.service.mapper.SubjectsMapper;
 import uz.tatu.service.utils.RequestUtil;
 
@@ -27,10 +34,14 @@ public class SubjectsServiceImpl implements SubjectsService {
     private final SubjectsRepository subjectsRepository;
 
     private final SubjectsMapper subjectsMapper;
+    private final GroupsMapper groupsMapper;
+    private final SubjectsGroupsRepositoryImpl subjectsGroupsRepositoryImpl;
 
-    public SubjectsServiceImpl(SubjectsRepository subjectsRepository, SubjectsMapper subjectsMapper) {
+    public SubjectsServiceImpl(SubjectsRepository subjectsRepository, SubjectsMapper subjectsMapper, GroupsMapper groupsMapper, SubjectsGroupsRepositoryImpl subjectsGroupsRepositoryImpl) {
         this.subjectsRepository = subjectsRepository;
         this.subjectsMapper = subjectsMapper;
+        this.groupsMapper = groupsMapper;
+        this.subjectsGroupsRepositoryImpl = subjectsGroupsRepositoryImpl;
     }
 
     @Override
@@ -72,8 +83,15 @@ public class SubjectsServiceImpl implements SubjectsService {
     @Override
     @Transactional(readOnly = true)
     public Optional<SubjectsDTO> findOne(Long id) {
+        Pageable pageable = PageRequest.of(0,100);
         log.debug("Request to get Subjects : {}", id);
-        return subjectsRepository.findById(id).map(subjectsMapper::toDto);
+        Optional<Subjects> byId = subjectsRepository.findById(id);
+        Optional<SubjectsDTO> subjectsDTO = byId.map(subjectsMapper::toDto);
+        if (byId.isPresent()){
+            Page<GroupListDTO> allGroups = subjectsGroupsRepositoryImpl.findAllGroups(id, pageable);
+           subjectsDTO.get().setGroupsDTOS(subjectsGroupsRepositoryImpl.findAllGroups(id, pageable).getContent());
+        }
+        return subjectsDTO;
     }
 
     @Override

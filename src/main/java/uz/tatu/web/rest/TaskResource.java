@@ -1,27 +1,38 @@
 package uz.tatu.web.rest;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
+import org.testcontainers.shaded.org.apache.commons.io.FilenameUtils;
 import tech.jhipster.web.util.HeaderUtil;
-import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
+import uz.tatu.config.ApplicationProperties;
+import uz.tatu.domain.Task;
 import uz.tatu.repository.TaskRepository;
+import uz.tatu.service.FilesService;
 import uz.tatu.service.TaskService;
+import uz.tatu.service.dto.FilesDTO;
 import uz.tatu.service.dto.TaskDTO;
+import uz.tatu.service.utils.FileHelper;
 import uz.tatu.web.rest.errors.BadRequestAlertException;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * REST controller for managing {@link uz.tatu.domain.Task}.
@@ -40,10 +51,16 @@ public class TaskResource {
     private final TaskService taskService;
 
     private final TaskRepository taskRepository;
+    private final FilesService filesService;
 
-    public TaskResource(TaskService taskService, TaskRepository taskRepository) {
+    private final ApplicationProperties applicationSettingDto;
+
+    public TaskResource(TaskService taskService, TaskRepository taskRepository, FilesService filesService, ApplicationProperties applicationSettingDto) {
         this.taskService = taskService;
         this.taskRepository = taskRepository;
+        this.filesService = filesService;
+        this.applicationSettingDto = applicationSettingDto;
+
     }
 
     /**
@@ -137,15 +154,14 @@ public class TaskResource {
     /**
      * {@code GET  /tasks} : get all the tasks.
      *
-     * @param pageable the pagination information.
+     * @param queryParams the pagination information.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of tasks in body.
      */
     @GetMapping("/tasks")
-    public ResponseEntity<List<TaskDTO>> getAllTasks(@org.springdoc.api.annotations.ParameterObject Pageable pageable) {
+    public ResponseEntity<List<Task>> getAllTasks(@RequestParam MultiValueMap<String, String> queryParams) {
         log.debug("REST request to get a page of Tasks");
-        Page<TaskDTO> page = taskService.findAll(pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
+        List<Task> page = taskService.findAll(queryParams);
+        return ResponseEntity.ok().body(page);
     }
 
     /**
@@ -175,5 +191,44 @@ public class TaskResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    @GetMapping("/edo-task-files-pdf/{id}")
+    public ResponseEntity<InputStreamResource> getPdfEdoInternalApprovals(@PathVariable Long id, HttpServletRequest request) throws IOException {
+        log.debug("REST request to get content OgProjectFiles : {}", id);
+
+
+        Optional<TaskDTO> taskDTO = taskService.findOne(id);
+        ByteArrayInputStream pdf = null;
+        /*Текшириш асосий файл бўлса ушани кўчириш*/
+        if (taskDTO.isPresent()) {
+            Optional<FilesDTO> filesDTO = filesService.findOne(taskDTO.get().getFileId());
+            if (filesDTO.isPresent()) {
+                if(filesDTO.isPresent()){
+                    String rootFilePath = applicationSettingDto.getApplicationSettingDto().getFilepath();
+                    rootFilePath = FileHelper.getUploadFilePath(rootFilePath + FileHelper.getFilesDirectory(), filesDTO.get().getCreatedAt());
+
+                    Path target = Paths.get(rootFilePath, filesDTO.get().getId() + "." + FilenameUtils.getExtension(filesDTO.get().getName()));
+                    if (target.toFile().exists()) {
+                        pdf = new ByteArrayInputStream(FileUtils.readFileToByteArray(target.toFile()));
+                    }
+                }
+            }
+        }
+
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.add("Pragma", "no-cache");
+        headers.add("Expires", "0");
+        headers.add("Content-Disposition", "inline; filename=" + id+".pdf");
+        headers.setContentType(MediaType.APPLICATION_PDF);
+
+        headers.set("X-Frame-Options", "SAMEORIGIN");
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(new InputStreamResource(pdf));
     }
 }

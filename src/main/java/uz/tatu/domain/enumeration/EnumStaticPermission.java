@@ -9,6 +9,9 @@ public enum EnumStaticPermission {
     NavbarEntity,
     NavbarSubject,
     NavbarAdmin,
+    NavbarExamples,
+    NavbarTeacherGroup,
+    NavbarStudentGroup,
 
     Admin,
 

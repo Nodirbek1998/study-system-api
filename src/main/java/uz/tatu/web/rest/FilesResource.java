@@ -2,9 +2,13 @@ package uz.tatu.web.rest;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -17,14 +21,17 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.web.servlet.MultipartProperties;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
 import org.testcontainers.shaded.org.apache.commons.io.FilenameUtils;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
@@ -37,12 +44,14 @@ import uz.tatu.repository.FilesRepository;
 import uz.tatu.service.FilesService;
 import uz.tatu.service.UserService;
 import uz.tatu.service.dto.FilesDTO;
+import uz.tatu.service.dto.TaskDTO;
 import uz.tatu.service.utils.DateUtils;
 import uz.tatu.service.utils.FileHelper;
 import uz.tatu.service.utils.ImageUtils;
 import uz.tatu.web.rest.errors.BadRequestAlertException;
 
 import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * REST controller for managing {@link uz.tatu.domain.Files}.
@@ -134,8 +143,7 @@ public class FilesResource {
 
     @PostMapping("/files-upload")
     public ResponseEntity<FilesDTO> uploadFiles(@RequestParam("type") int type,
-                                                   @RequestParam("file") MultipartFile file,
-                                                   @RequestParam(value = "name", required = false) String name) throws Exception {
+                                                   @RequestParam("file") MultipartFile file) throws Exception {
         Optional<User> currentUser = userService.getUserWithAuthorities();
         if (!userService.getAccessMethod(EnumStaticPermission.EdoFilesAdd, currentUser)) {
             return ResponseEntity
@@ -167,7 +175,6 @@ public class FilesResource {
             throw new BadRequestAlertException(messageSource.getMessage("file.validation.format.not.valid", io.jsonwebtoken.lang.Objects.toObjectArray(fileExtension), LocaleContextHolder.getLocale()), ENTITY_NAME, "fileFormat");
         }
 
-        String fileName = Stream.of(name, file.getOriginalFilename()).filter(java.util.Objects::nonNull).findFirst().orElse(null);
         FilesDTO result;
         if (type == 3 && filesService.isDocFile(fileExtension)) {
             result = filesService.saveFileDocFile(file, currentUser.get(), filePath);
@@ -268,5 +275,39 @@ public class FilesResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    @GetMapping("/edo-files-pdf/{id}")
+    public ResponseEntity<InputStreamResource> getPdfEdoInternalApprovals(@PathVariable Long id, HttpServletRequest request) throws IOException {
+        log.debug("REST request to get content OgProjectFiles : {}", id);
+        ByteArrayInputStream pdf = null;
+        Optional<FilesDTO> filesDTO = filesService.findOne(id);
+        if (filesDTO.isPresent()) {
+            if(filesDTO.isPresent()){
+                String rootFilePath = applicationSettingDto.getApplicationSettingDto().getFilepath();
+                rootFilePath = FileHelper.getUploadFilePath(rootFilePath + FileHelper.getFilesDirectory(), filesDTO.get().getCreatedAt());
+
+                Path target = Paths.get(rootFilePath, filesDTO.get().getId() + "." + FilenameUtils.getExtension(filesDTO.get().getName()));
+                if (target.toFile().exists()) {
+                    pdf = new ByteArrayInputStream(FileUtils.readFileToByteArray(target.toFile()));
+                }
+            }
+        }
+
+
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
+        headers.add("Pragma", "no-cache");
+        headers.add("Expires", "0");
+        headers.add("Content-Disposition", "inline; filename=" + id+".pdf");
+        headers.setContentType(MediaType.APPLICATION_PDF);
+
+        headers.set("X-Frame-Options", "SAMEORIGIN");
+        return ResponseEntity
+                .ok()
+                .headers(headers)
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(new InputStreamResource(pdf));
     }
 }

@@ -3,7 +3,7 @@ package uz.tatu.service.dto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import uz.tatu.domain.Subjects;
+import uz.tatu.service.custom.GroupUserListDTO;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -24,7 +24,7 @@ public class GroupsDTO implements Serializable {
 
     private String imageUrl;
 
-    private List<GroupsUsersDTO> groupsUsersList;
+    private List<GroupUserListDTO> groupsUsersList;
 
     private List<SubjectsDTO> subjects;
 

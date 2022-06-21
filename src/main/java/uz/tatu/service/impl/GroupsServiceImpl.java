@@ -11,11 +11,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import uz.tatu.domain.Groups;
+import uz.tatu.domain.enumeration.UserType;
 import uz.tatu.repository.GroupsRepository;
-import uz.tatu.repository.SubjectsRepository;
+import uz.tatu.repository.impl.GroupRepositoryImpl;
+import uz.tatu.repository.impl.GroupsUsersRepositoryImpl;
 import uz.tatu.service.GroupsService;
 import uz.tatu.service.GroupsUsersService;
 import uz.tatu.service.SubjectsService;
+import uz.tatu.service.custom.GroupListDTO;
 import uz.tatu.service.dto.GroupsDTO;
 import uz.tatu.service.mapper.GroupsMapper;
 
@@ -34,13 +37,19 @@ public class GroupsServiceImpl implements GroupsService {
 
     private final GroupsUsersService groupsUsersService;
 
+    private final GroupsUsersRepositoryImpl groupsUsersRepositoryImpl;
+
     private final SubjectsService subjectsService;
 
-    public GroupsServiceImpl(GroupsRepository groupsRepository, GroupsMapper groupsMapper, GroupsUsersService groupsUsersService, SubjectsService subjectsService) {
+    private final GroupRepositoryImpl groupRepositoryImpl;
+
+    public GroupsServiceImpl(GroupsRepository groupsRepository, GroupsMapper groupsMapper, GroupsUsersService groupsUsersService, GroupsUsersRepositoryImpl groupsUsersRepositoryImpl, SubjectsService subjectsService, GroupRepositoryImpl groupRepository) {
         this.groupsRepository = groupsRepository;
         this.groupsMapper = groupsMapper;
         this.groupsUsersService = groupsUsersService;
+        this.groupsUsersRepositoryImpl = groupsUsersRepositoryImpl;
         this.subjectsService = subjectsService;
+        this.groupRepositoryImpl = groupRepository;
     }
 
     @Override
@@ -68,9 +77,10 @@ public class GroupsServiceImpl implements GroupsService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<GroupsDTO> findAll(Pageable pageable) {
+    public Page<GroupListDTO> findAll(Pageable pageable, MultiValueMap<String, String> queryParams) {
         log.debug("Request to get all Groups");
-        return groupsRepository.findAll(pageable).map(groupsMapper::toDto);
+        Page<GroupListDTO> all = groupRepositoryImpl.findAll(pageable, queryParams);
+        return all;
     }
 
     public Page<GroupsDTO> findAllWithEagerRelationships(Pageable pageable) {
@@ -86,7 +96,8 @@ public class GroupsServiceImpl implements GroupsService {
         Optional<GroupsDTO> groupsDTO = groupsRepository.findById(id).map(groupsMapper::toDto);
         if (groupsDTO.isPresent()){
             queryParam.set("groupId", id + "");
-            groupsDTO.get().setGroupsUsersList(groupsUsersService.findAll(queryParam, pageable).getContent());
+            queryParam.set("userType", UserType.STUDENT.name());
+            groupsDTO.get().setGroupsUsersList(groupsUsersRepositoryImpl.findAll(pageable, queryParam));
             groupsDTO.get().setSubjects(subjectsService.findAll(pageable, queryParam).getContent());
         }
         return groupsDTO;

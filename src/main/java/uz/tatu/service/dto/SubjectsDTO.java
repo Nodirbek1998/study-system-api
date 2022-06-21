@@ -3,9 +3,11 @@ package uz.tatu.service.dto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import uz.tatu.service.custom.GroupListDTO;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -24,6 +26,8 @@ public class SubjectsDTO implements Serializable {
     private String nameRu;
 
     private String nameEn;
+
+    private List<GroupListDTO> groupsDTOS;
 
     private LocalDate createdAt;
 

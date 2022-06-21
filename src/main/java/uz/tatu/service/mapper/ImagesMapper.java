@@ -10,6 +10,7 @@ import uz.tatu.service.dto.ImagesDTO;
 @Mapper(componentModel = "spring")
 public interface ImagesMapper extends EntityMapper<ImagesDTO, Images> {
 
+    @Mapping(source = "createdAt", target = "createdAt")
     ImagesDTO toDto(Images s);
 
     Images toEntity(ImagesDTO s);

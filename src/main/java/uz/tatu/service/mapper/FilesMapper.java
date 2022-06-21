@@ -11,9 +11,11 @@ import uz.tatu.service.dto.FilesDTO;
 public interface FilesMapper extends EntityMapper<FilesDTO, Files> {
 
     @Mapping(source = "createdBy.id", target = "createdById")
+    @Mapping(source = "createdAt", target = "createdAt")
     FilesDTO toDto(Files s);
 
     @Mapping(source = "createdById", target = "createdBy")
+    @Mapping(source = "createdAt", target = "createdAt")
     Files toDto(FilesDTO s);
 
     default Files fromId(Long id) {

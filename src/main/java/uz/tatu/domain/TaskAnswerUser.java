@@ -33,8 +33,11 @@ public class TaskAnswerUser {
     private User users;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnoreProperties(value = "taskAnswer", allowSetters = true)
+    @JsonIgnoreProperties(value = "task", allowSetters = true)
     @NotFound(action = NotFoundAction.IGNORE)
-    private TaskAnswer taskAnswer;
+    private Task task;
+
+    @ManyToOne
+    private Files files;
 
 }

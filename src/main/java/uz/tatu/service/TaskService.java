@@ -1,8 +1,12 @@
 package uz.tatu.service;
 
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.RequestParam;
+import uz.tatu.domain.Task;
 import uz.tatu.service.dto.TaskDTO;
 
 /**
@@ -28,10 +32,10 @@ public interface TaskService {
     /**
      * Get all the tasks.
      *
-     * @param pageable the pagination information.
+     * @param queryParams the pagination information.
      * @return the list of entities.
      */
-    Page<TaskDTO> findAll(Pageable pageable);
+    List<Task> findAll(MultiValueMap<String, String> queryParams);
 
     /**
      * Get the "id" task.

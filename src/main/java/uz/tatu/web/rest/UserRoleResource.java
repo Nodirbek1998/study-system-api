@@ -64,7 +64,7 @@ public class UserRoleResource {
                     .status(HttpStatus.FORBIDDEN)
                     .build();
         }
-        if(edoUserRoleDTO.getRoleId() != null && edoUserRoleDTO.getRoleId() == 2 && !userService.getAccessMethodForProduction(EnumStaticPermission.EdoDtRoleStaticPermissionAdd, currentUser)) {
+        if(edoUserRoleDTO.getRoleId() == null  && !userService.getAccessMethodForProduction(EnumStaticPermission.EdoDtRoleStaticPermissionAdd, currentUser)) {
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
                     .build();

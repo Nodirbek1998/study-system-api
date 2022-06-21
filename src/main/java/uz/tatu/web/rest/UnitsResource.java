@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.HeaderUtil;
@@ -20,6 +21,7 @@ import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
 import uz.tatu.repository.UnitsRepository;
 import uz.tatu.service.UnitsService;
+import uz.tatu.service.custom.UnitsListDTO;
 import uz.tatu.service.dto.UnitsDTO;
 import uz.tatu.web.rest.errors.BadRequestAlertException;
 
@@ -143,11 +145,11 @@ public class UnitsResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of units in body.
      */
     @GetMapping("/units")
-    public ResponseEntity<List<UnitsDTO>> getAllUnits(@org.springdoc.api.annotations.ParameterObject Pageable pageable) {
+    public ResponseEntity<Page<UnitsListDTO>> getAllUnits(Pageable pageable, @RequestParam MultiValueMap<String , String> queryParam) {
         log.debug("REST request to get a page of Units");
-        Page<UnitsDTO> page = unitsService.findAll(pageable);
+        Page<UnitsListDTO> page = unitsService.findAll(pageable, queryParam);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
+        return ResponseEntity.ok().headers(headers).body(page);
     }
 
     /**

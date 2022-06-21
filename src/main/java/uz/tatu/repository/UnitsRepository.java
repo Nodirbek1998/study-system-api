@@ -9,4 +9,7 @@ import uz.tatu.domain.Units;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface UnitsRepository extends JpaRepository<Units, Long> {}
+public interface UnitsRepository extends JpaRepository<Units, Long> {
+
+
+}

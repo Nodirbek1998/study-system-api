@@ -49,27 +49,27 @@ public class ReminderResource {
     }
 
     /**
-     * {@code POST  /tasks} : Create a new reminder.
+     * {@code POST  /reminders} : Create a new reminder.
      *
-     * @param reminderDTO the taskDTO to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new taskDTO, or with status {@code 400 (Bad Request)} if the task has already an ID.
+     * @param reminderDTO the reminderDTO to create.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new reminderDTO, or with status {@code 400 (Bad Request)} if the reminder has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/reminders")
-    public ResponseEntity<ReminderDTO> createTask(@RequestBody ReminderDTO reminderDTO) throws URISyntaxException {
+    public ResponseEntity<ReminderDTO> createReminder(@RequestBody ReminderDTO reminderDTO) throws URISyntaxException {
         log.debug("REST request to save Reminder : {}", reminderDTO);
         if (reminderDTO.getId() != null) {
-            throw new BadRequestAlertException("A new task cannot already have an ID", ENTITY_NAME, "idexists");
+            throw new BadRequestAlertException("A new reminder cannot already have an ID", ENTITY_NAME, "idexists");
         }
         ReminderDTO result = reminderService.save(reminderDTO);
         return ResponseEntity
-                .created(new URI("/api/tasks/" + result.getId()))
+                .created(new URI("/api/reminders/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
                 .body(result);
     }
 
     /**
-     * {@code PUT  /reminder/:id} : Updates an existing reminder.
+     * {@code PUT  /reminders/:id} : Updates an existing reminder.
      *
      * @param id the id of the reminderDTO to save.
      * @param reminderDTO the taskDTO to update.
@@ -79,7 +79,7 @@ public class ReminderResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/reminders/{id}")
-    public ResponseEntity<ReminderDTO> updateTask(@PathVariable(value = "id", required = false) final Long id, @RequestBody ReminderDTO reminderDTO)
+    public ResponseEntity<ReminderDTO> updateReminder(@PathVariable(value = "id", required = false) final Long id, @RequestBody ReminderDTO reminderDTO)
             throws URISyntaxException {
         log.debug("REST request to update Reminder : {}, {}", id, reminderDTO);
         if (reminderDTO.getId() == null) {
@@ -112,7 +112,7 @@ public class ReminderResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/reminders/{id}", consumes = { "application/json", "application/merge-patch+json" })
-    public ResponseEntity<ReminderDTO> partialUpdateTask(
+    public ResponseEntity<ReminderDTO> partialUpdateReminder(
             @PathVariable(value = "id", required = false) final Long id,
             @RequestBody ReminderDTO reminderDTO
     ) throws URISyntaxException {
@@ -143,7 +143,7 @@ public class ReminderResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of tasks in body.
      */
     @GetMapping("/reminders")
-    public ResponseEntity<List<ReminderDTO>> getAllTasks(@org.springdoc.api.annotations.ParameterObject Pageable pageable, @RequestParam MultiValueMap<String, String > queryParam) {
+    public ResponseEntity<List<ReminderDTO>> getAllReminder(@org.springdoc.api.annotations.ParameterObject Pageable pageable, @RequestParam MultiValueMap<String, String > queryParam) {
         log.debug("REST request to get a page of Reminders");
         Page<ReminderDTO> page = reminderService.findAll(queryParam, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
@@ -156,8 +156,8 @@ public class ReminderResource {
      * @param id the id of the reminderDTO to retrieve.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the reminderDTO, or with status {@code 404 (Not Found)}.
      */
-    @GetMapping("/reminder/{id}")
-    public ResponseEntity<ReminderDTO> getTask(@PathVariable Long id) {
+    @GetMapping("/reminders/{id}")
+    public ResponseEntity<ReminderDTO> getReminder(@PathVariable Long id) {
         log.debug("REST request to get Reminder : {}", id);
         Optional<ReminderDTO> reminderDTO = reminderService.findOne(id);
         return ResponseUtil.wrapOrNotFound(reminderDTO);
@@ -169,8 +169,8 @@ public class ReminderResource {
      * @param id the id of the reminderDTO to delete.
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
-    @DeleteMapping("/reminder/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+    @DeleteMapping("/reminders/{id}")
+    public ResponseEntity<Void> deleteReminder(@PathVariable Long id) {
         log.debug("REST request to delete Reminder : {}", id);
         reminderService.delete(id);
         return ResponseEntity

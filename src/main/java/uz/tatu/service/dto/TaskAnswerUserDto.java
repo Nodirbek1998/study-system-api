@@ -12,7 +12,11 @@ public class TaskAnswerUserDto {
 
     private Long id;
 
-    private Long taskAnswerId;
+    private Long taskId;
 
     private Long userId;
+
+    private FilesDTO filesDTO;
+
+    private Long fileId;
 }
